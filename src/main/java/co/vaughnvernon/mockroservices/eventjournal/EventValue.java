@@ -15,6 +15,8 @@
 package co.vaughnvernon.mockroservices.eventjournal;
 
 public class EventValue {
+  public static final int NO_STREAM_VERSION = -1;
+  
   public final String body;
   public final String snapshot;
   public final String streamName;

@@ -15,9 +15,15 @@
 package co.vaughnvernon.mockroservices.eventjournal;
 
 public final class StoredEvent {
+  public static final long NO_ID = -1L;
+  
   public final EventValue eventValue;
   public final long id;
-  
+
+  public boolean isValid() {
+    return id != NO_ID;
+  }
+
   @Override
   public int hashCode() {
     return Long.hashCode(id) + eventValue.hashCode();

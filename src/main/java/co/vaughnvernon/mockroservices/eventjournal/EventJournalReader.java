@@ -19,7 +19,7 @@ public class EventJournalReader {
   private final String name;
   private int readSequence;
   
-  public void acknowledge(final int id) {
+  public void acknowledge(final long id) {
     if (id == readSequence) {
         ++readSequence;
     } else if (id > readSequence) {
@@ -38,7 +38,7 @@ public class EventJournalReader {
       return new StoredEvent(readSequence, eventJournal.eventValueAt(readSequence));
     }
 
-    return new StoredEvent(-1, new EventValue("", -1, "", "", ""));
+    return new StoredEvent(StoredEvent.NO_ID, new EventValue("", EventValue.NO_STREAM_VERSION, "", "", ""));
   }
 
   public void reset() {
