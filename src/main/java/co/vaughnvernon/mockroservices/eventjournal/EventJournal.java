@@ -108,14 +108,17 @@ public class EventJournal {
       
       for (final EventValue value : storeCopy) {
         if (value.streamName.equals(streamName)) {
-          values.add(value);
           if (value.hasSnapshot()) {
+            values.clear();
             latestSnapshot = value.snapshot;
           }
+          values.add(value);
         }
       }
       
-      return new EventStream(streamName, values.size(), values, latestSnapshot);
+      final int streamVersion = values.isEmpty() ? 0 : values.get(values.size() - 1).streamVersion;
+      
+      return new EventStream(streamName, streamVersion, values, latestSnapshot);
     }
   }
 }
