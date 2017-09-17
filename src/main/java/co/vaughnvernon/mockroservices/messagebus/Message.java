@@ -11,3 +11,17 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
+
+package co.vaughnvernon.mockroservices.messagebus;
+
+public class Message {
+  public final String id;
+  public final String payload;
+  public final String type;
+  
+  public Message(final String id, final String type, final String payload) {
+    this.id = id;
+    this.type = type;
+    this.payload = payload;
+  }
+}

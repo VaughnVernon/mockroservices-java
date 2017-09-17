@@ -11,3 +11,25 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
+
+package co.vaughnvernon.mockroservices.eventjournal;
+
+import java.util.List;
+
+public class EventStream {
+  public final String snapshot;
+  public final List<EventValue> stream;
+  public final String streamName;
+  public final long streamVersion;
+  
+  public boolean hasSnapshot() {
+    return !snapshot.isEmpty();
+  }
+  
+  protected EventStream(final String streamName, long streamVersion, List<EventValue> stream, final String snapshot) {
+    this.streamName = streamName;
+    this.streamVersion = streamVersion;
+    this.stream = stream;
+    this.snapshot = snapshot;
+  }
+}

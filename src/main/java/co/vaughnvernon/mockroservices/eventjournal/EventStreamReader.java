@@ -11,3 +11,17 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
+
+package co.vaughnvernon.mockroservices.eventjournal;
+
+public class EventStreamReader {
+  private final EventJournal eventJournal;
+
+  public EventStream streamFor(final String streamName) {
+    return eventJournal.readStream(streamName);
+  }
+
+  protected EventStreamReader(EventJournal eventJournal) {
+    this.eventJournal = eventJournal;
+  }
+}
