@@ -14,9 +14,16 @@
 
 package co.vaughnvernon.mockroservices.model;
 
-import java.util.Date;
-
-public interface DomainEvent {
-  int eventVersion();
-  Date occurredOn();
+public abstract class DomainEvent {
+  public final long occurredOn;
+  public final int eventVersion;
+  
+  protected DomainEvent() {
+    this(1);
+  }
+  
+  protected DomainEvent(final int eventVersion) {
+    this.occurredOn = System.currentTimeMillis();
+    this.eventVersion = eventVersion;
+  }
 }

@@ -140,7 +140,7 @@ public class EventSourcedRootEntityTest {
     }
   }
   
-  public final class ProductDefined implements DomainEvent {
+  public final class ProductDefined extends DomainEvent {
     public final String description;
     public final String name;
     public final Date occurredOn;
@@ -178,7 +178,7 @@ public class EventSourcedRootEntityTest {
     }
   }
   
-  public final class ProductDescriptionChanged implements DomainEvent {
+  public final class ProductDescriptionChanged extends DomainEvent {
     public final String description;
     public final Date occurredOn;
     public final int version;
@@ -210,7 +210,7 @@ public class EventSourcedRootEntityTest {
     }
   }
   
-  public final class ProductNameChanged implements DomainEvent {
+  public final class ProductNameChanged extends DomainEvent {
     public final String name;
     public final Date occurredOn;
     public final int version;
@@ -242,7 +242,7 @@ public class EventSourcedRootEntityTest {
     }
   }
   
-  public final class ProductPriceChanged implements DomainEvent {
+  public final class ProductPriceChanged extends DomainEvent {
     public final long price;
     public final Date occurredOn;
     public final int version;

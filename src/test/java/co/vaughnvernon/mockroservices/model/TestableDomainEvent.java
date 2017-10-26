@@ -14,27 +14,12 @@
 
 package co.vaughnvernon.mockroservices.model;
 
-import java.util.Date;
-
-public class TestableDomainEvent implements DomainEvent {
-
-  public final int eventVersion;
+public class TestableDomainEvent extends DomainEvent {
   public final long id;
   public final String name;
-  public final Date occurredOn;
 
   public TestableDomainEvent(final long id, final String name) {
     this.id = id;
     this.name = name;
-    this.eventVersion = 1;
-    this.occurredOn = new Date();
-  }
-
-  public int eventVersion() {
-    return eventVersion;
-  }
-
-  public Date occurredOn() {
-    return occurredOn;
   }
 }
