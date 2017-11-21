@@ -68,15 +68,19 @@ public class EventJournal {
     return new EventStreamReader(this);
   }
 
-  public void write(final String streamName, final int streamVersion, final String type, final String body) {
+  public void write(final EventBatch batch) {
     synchronized (store) {
-      store.add(new EventValue(streamName, streamVersion, type, body, ""));
+      for (final EventBatch.Entry entry : batch.entries) {
+        store.add(new EventValue("", 0, entry.type, entry.body, ""));
+      }
     }
   }
 
-  public void write(final String streamName, final int streamVersion, final String type, final String body, final String snapshot) {
+  public void write(final String streamName, final int streamVersion, final EventBatch batch) {
     synchronized (store) {
-      store.add(new EventValue(streamName, streamVersion, type, body, snapshot));
+      for (final EventBatch.Entry entry : batch.entries) {
+        store.add(new EventValue(streamName, streamVersion, entry.type, entry.body, entry.snapshot));
+      }
     }
   }
 

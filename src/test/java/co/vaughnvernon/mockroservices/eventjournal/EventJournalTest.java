@@ -55,8 +55,8 @@ public class EventJournalTest {
   @Test
   public void testWriteRead() throws Exception {
     final EventJournal journal = EventJournal.open("test");
-    journal.write("name123", 1, "type1", "type1_instance1");
-    journal.write("name456", 1, "type2", "type2_instance1");
+    journal.write("name123", 1, EventBatch.of("type1", "type1_instance1"));
+    journal.write("name456", 1, EventBatch.of("type2", "type2_instance1"));
     final EventJournalReader reader = journal.reader("test_reader");
     assertEquals(new StoredEvent(0, new EventValue("name123", 1, "type1", "type1_instance1", "")), reader.readNext());
     reader.acknowledge(0);
@@ -70,11 +70,11 @@ public class EventJournalTest {
   @Test
   public void testWriteReadStream() throws Exception {
     final EventJournal journal = EventJournal.open("test");
-    journal.write("name123", 1, "type1", "type1_instance1");
-    journal.write("name456", 1, "type2", "type2_instance1");
-    journal.write("name123", 2, "type1-1", "type1-1_instance1");
-    journal.write("name123", 3, "type1-2", "type1-2_instance1");
-    journal.write("name456", 2, "type2-1", "type2-1_instance1");
+    journal.write("name123", 1, EventBatch.of("type1", "type1_instance1"));
+    journal.write("name456", 1, EventBatch.of("type2", "type2_instance1"));
+    journal.write("name123", 2, EventBatch.of("type1-1", "type1-1_instance1"));
+    journal.write("name123", 3, EventBatch.of("type1-2", "type1-2_instance1"));
+    journal.write("name456", 2, EventBatch.of("type2-1", "type2-1_instance1"));
     
     final EventStreamReader streamReader = journal.streamReader();
     
@@ -97,11 +97,11 @@ public class EventJournalTest {
   @Test
   public void testWriteReadStreamSnapshot() throws Exception {
     final EventJournal journal = EventJournal.open("test");
-    journal.write("name123", 1, "type1", "type1_instance1", "SNAPSHOT123-1");
-    journal.write("name456", 1, "type2", "type2_instance1", "SNAPSHOT456-1");
-    journal.write("name123", 2, "type1-1", "type1-1_instance1", "SNAPSHOT123-2");
-    journal.write("name123", 3, "type1-2", "type1-2_instance1");
-    journal.write("name456", 2, "type2-1", "type2-1_instance1", "SNAPSHOT456-2");
+    journal.write("name123", 1, EventBatch.of("type1", "type1_instance1", "SNAPSHOT123-1"));
+    journal.write("name456", 1, EventBatch.of("type2", "type2_instance1", "SNAPSHOT456-1"));
+    journal.write("name123", 2, EventBatch.of("type1-1", "type1-1_instance1", "SNAPSHOT123-2"));
+    journal.write("name123", 3, EventBatch.of("type1-2", "type1-2_instance1"));
+    journal.write("name456", 2, EventBatch.of("type2-1", "type2-1_instance1", "SNAPSHOT456-2"));
     
     final EventStreamReader streamReader = journal.streamReader();
     

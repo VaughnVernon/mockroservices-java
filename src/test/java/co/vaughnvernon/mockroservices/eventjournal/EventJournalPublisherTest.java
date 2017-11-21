@@ -39,14 +39,18 @@ public class EventJournalPublisherTest {
     final TestSubscriber subscriber = new TestSubscriber();
     topic.subscribe(subscriber);
     
+    final EventBatch batch1 = new EventBatch();
     for (int idx = 0; idx < 3; ++idx) {
-      eventJournal.write("test1", idx, "test1type", "test1instance" + idx);
+      batch1.addEntry("test1type", "test1instance" + idx);
     }
+    eventJournal.write("test1", 0, batch1);
     
+    final EventBatch batch2 = new EventBatch();
     for (int idx = 0; idx < 3; ++idx) {
-      eventJournal.write("test2", idx, "test2type", "test2instance" + idx);
+      batch2.addEntry("test2type", "test2instance" + idx);
     }
-    
+    eventJournal.write("test2", 0, batch2);
+
     subscriber.waitForExpectedMessages(6);
     
     topic.close();

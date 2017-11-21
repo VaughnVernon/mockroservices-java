@@ -17,6 +17,7 @@ package co.vaughnvernon.mockroservices.model;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +55,18 @@ public abstract class EventSourcedRootEntity {
     this.unmutatedVersion = 0;
   }
 
-  protected void apply(final DomainEvent domainEvent) {
-    mutatingEvents().add(domainEvent);
-    mutateWhen(domainEvent);
+  protected void apply(final DomainEvent... domainEvents) {
+    for (final DomainEvent domainEvent : domainEvents) {
+      mutatingEvents().add(domainEvent);
+      mutateWhen(domainEvent);
+    }
+  }
+
+  protected void apply(final Collection<DomainEvent> domainEvents) {
+    for (final DomainEvent domainEvent : domainEvents) {
+      mutatingEvents().add(domainEvent);
+      mutateWhen(domainEvent);
+    }
   }
 
   protected void mutateWhen(final DomainEvent domainEvent) {

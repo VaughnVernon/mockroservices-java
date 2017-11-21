@@ -14,9 +14,39 @@
 
 package co.vaughnvernon.mockroservices.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class DomainEvent {
   public final long occurredOn;
   public final int eventVersion;
+  
+  public static DomainEvent NULL = new NullDomainEvent();
+  
+  public static List<DomainEvent> all(final DomainEvent... domainEvents) {
+    return all(Arrays.asList(domainEvents));
+  }
+  
+  public static List<DomainEvent> all(final List<DomainEvent> domainEvents) {
+    final List<DomainEvent> all = new ArrayList<>(domainEvents.size());
+    
+    for (final DomainEvent domainEvent : domainEvents) {
+      if (!domainEvent.isNull()) {
+        all.add(domainEvent);
+      }
+    }
+    return all;
+  }
+  
+  public static List<DomainEvent> none() {
+    return Collections.emptyList();
+  }
+  
+  public boolean isNull() {
+    return false;
+  }
   
   protected DomainEvent() {
     this(1);
@@ -25,5 +55,12 @@ public abstract class DomainEvent {
   protected DomainEvent(final int eventVersion) {
     this.occurredOn = System.currentTimeMillis();
     this.eventVersion = eventVersion;
+  }
+  
+  private static class NullDomainEvent extends DomainEvent {
+    @Override
+    public boolean isNull() {
+      return true;
+    }
   }
 }
