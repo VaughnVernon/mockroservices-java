@@ -20,13 +20,13 @@ public class EventStream {
   public final String snapshot;
   public final List<EventValue> stream;
   public final String streamName;
-  public final long streamVersion;
+  public final int streamVersion;
   
   public boolean hasSnapshot() {
     return !snapshot.isEmpty();
   }
   
-  protected EventStream(final String streamName, long streamVersion, List<EventValue> stream, final String snapshot) {
+  protected EventStream(final String streamName, int streamVersion, List<EventValue> stream, final String snapshot) {
     this.streamName = streamName;
     this.streamVersion = streamVersion;
     this.stream = stream;
