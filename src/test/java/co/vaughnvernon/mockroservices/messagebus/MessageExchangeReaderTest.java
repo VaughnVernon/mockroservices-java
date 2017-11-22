@@ -28,8 +28,7 @@ public class MessageExchangeReaderTest {
     final TestableDomainEvent domainEvent = new TestableDomainEvent(1, "something");
     final String serializedDomainEvent = Serialization.serialize(domainEvent);
     final Message eventMessage = new Message(String.valueOf(domainEvent.id), domainEvent.getClass().getName(), serializedDomainEvent);
-    final String serializedMessage = Serialization.serialize(eventMessage);
-    final MessageExchangeReader reader = MessageExchangeReader.from(serializedMessage);
+    final MessageExchangeReader reader = MessageExchangeReader.from(eventMessage);
     assertEquals(eventMessage.id, reader.id());
     assertEquals(eventMessage.type, reader.type());
     assertEquals(domainEvent.id, (long) reader.payloadLongValue("id"));

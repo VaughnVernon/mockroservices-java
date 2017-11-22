@@ -17,29 +17,13 @@ package co.vaughnvernon.mockroservices.messagebus;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.google.gson.JsonObject;
-
 import co.vaughnvernon.mockroservices.exchange.InformationExchangeReader;
 
 public class MessageExchangeReader extends InformationExchangeReader {
-  private JsonObject payload;
+  private final Message message;
   
-  public static MessageExchangeReader from(final String jsonRepresentation) {
-    return new MessageExchangeReader(jsonRepresentation);
-  }
-  
-  public static MessageExchangeReader from(final JsonObject jsonRepresentation) {
-    return new MessageExchangeReader(jsonRepresentation);
-  }
-  
-  public MessageExchangeReader(final String jsonRepresentation) {
-    super(jsonRepresentation);
-    payload = parse(stringValue(representation(), "payload"));
-  }
-
-  public MessageExchangeReader(JsonObject jsonRepresentation) {
-    super(jsonRepresentation);
-    payload = parse(stringValue(representation(), "payload"));
+  public static MessageExchangeReader from(final Message message) {
+    return new MessageExchangeReader(message);
   }
 
   //==============================================
@@ -47,18 +31,15 @@ public class MessageExchangeReader extends InformationExchangeReader {
   //==============================================
   
   public String id() {
-    String id = stringValue("id");
-    return id;
+    return message.id;
   }
 
   public long idAsLong() {
-    String id = stringValue("id");
-    return Long.parseLong(id);
+    return Long.parseLong(id());
   }
 
   public String type() {
-    String type = stringValue("type");
-    return type;
+    return message.type;
   }
   
   //==============================================
@@ -66,42 +47,48 @@ public class MessageExchangeReader extends InformationExchangeReader {
   //==============================================
 
   public BigDecimal payloadBigDecimalValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : new BigDecimal(stringValue);
   }
 
   public Boolean payloadBooleanValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : Boolean.parseBoolean(stringValue);
   }
 
   public Date payloadDateValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : new Date(Long.parseLong(stringValue));
   }
 
   public Double payloadDoubleValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : Double.parseDouble(stringValue);
   }
 
   public Float payloadFloatValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : Float.parseFloat(stringValue);
   }
 
   public Integer payloadIntegerValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : Integer.parseInt(stringValue);
   }
 
   public Long payloadLongValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue == null ? null : Long.parseLong(stringValue);
   }
 
   public String payloadStringValue(final String... keys) {
-    String stringValue = stringValue(payload, keys);
+    String stringValue = stringValue(keys);
     return stringValue;
+  }
+
+  private MessageExchangeReader(final Message message) {
+    super(message.payload);
+    
+    this.message = message;
   }
 }

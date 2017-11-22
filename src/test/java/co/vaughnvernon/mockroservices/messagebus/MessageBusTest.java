@@ -60,19 +60,22 @@ public class MessageBusTest {
     topic.close();
     
     assertEquals(3, subscriber.handledMessages.size());
-    assertEquals("1", subscriber.handledMessages.get(0).id);
-    assertEquals("type1", subscriber.handledMessages.get(0).type);
-    assertEquals("test1", subscriber.handledMessages.get(0).payload);
-    assertEquals("2", subscriber.handledMessages.get(1).id);
-    assertEquals("type2", subscriber.handledMessages.get(1).type);
-    assertEquals("test2", subscriber.handledMessages.get(1).payload);
-    assertEquals("3", subscriber.handledMessages.get(2).id);
-    assertEquals("type3", subscriber.handledMessages.get(2).type);
-    assertEquals("test3", subscriber.handledMessages.get(2).payload);
+    final Message message1 = subscriber.handledMessages.get(0);
+    assertEquals("1", message1.id);
+    assertEquals("type1", message1.type);
+    assertEquals("test1", message1.payload);
+    final Message message2 = subscriber.handledMessages.get(1);
+    assertEquals("2", message2.id);
+    assertEquals("type2", message2.type);
+    assertEquals("test2", message2.payload);
+    final Message message3 = subscriber.handledMessages.get(2);
+    assertEquals("3", message3.id);
+    assertEquals("type3", message3.type);
+    assertEquals("test3", message3.payload);
   }
 
   private class TestSubscriber implements Subscriber {
-    private final List<Message> handledMessages = new ArrayList<Message>();
+    private final List<Message> handledMessages = new ArrayList<>();
     
     public void handle(final Message message) {
       handledMessages.add(message);

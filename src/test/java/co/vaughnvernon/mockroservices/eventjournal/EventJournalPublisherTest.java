@@ -61,7 +61,7 @@ public class EventJournalPublisherTest {
   }
 
   private class TestSubscriber implements Subscriber {
-    private final List<Message> handledMessages = new ArrayList<Message>();
+    private final List<Message> handledMessages = new ArrayList<>();
     
     public void handle(final Message message) {
       handledMessages.add(message);

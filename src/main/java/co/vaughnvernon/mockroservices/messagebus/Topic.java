@@ -83,7 +83,7 @@ public class Topic extends Thread {
   protected Topic(final String name) {
     this.name = name;
     this.closed = false;
-    this.queue = new ConcurrentLinkedQueue<Message>();
+    this.queue = new ConcurrentLinkedQueue<>();
     this.subscribers = new HashSet<Subscriber>();
   }
 }
