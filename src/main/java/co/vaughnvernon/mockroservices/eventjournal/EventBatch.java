@@ -29,7 +29,11 @@ public final class EventBatch {
   }
   
   public EventBatch() {
-    this.entries = new ArrayList<>();
+    this(2);
+  }
+  
+  public EventBatch(final int entries) {
+    this.entries = new ArrayList<>(entries);
   }
   
   public EventBatch(final String type, final String body) {
