@@ -91,6 +91,20 @@ public abstract class InformationExchangeReader {
     return stringValue(representation(), keys);
   }
 
+  public String[] stringArrayValue(final String... keys) {
+    final JsonArray array = array(keys);
+    
+    if (array != null) {
+      final int size = array.size();
+      final String[] stringArray = new String[size];
+      for (int idx = 0; idx < size; ++idx) {
+        stringArray[idx] = array.get(idx).getAsString();
+      }
+      return stringArray;
+    }
+    return new String[0];
+  }
+
   //==============================================
   // internal implementation
   //==============================================
