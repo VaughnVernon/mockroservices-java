@@ -115,8 +115,9 @@ public class EventJournal {
           if (value.hasSnapshot()) {
             values.clear();
             latestSnapshot = value.snapshot;
+          } else {
+            values.add(value);
           }
-          values.add(value);
         }
       }
       
