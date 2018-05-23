@@ -108,22 +108,23 @@ public class EventJournal {
     synchronized (store) {
       final List<EventValue> values = new ArrayList<EventValue>();
       final List<EventValue> storeCopy = new ArrayList<EventValue>(store);
-      String latestSnapshot = "";
+      EventValue latestSnapshotValue = null;
       
       for (final EventValue value : storeCopy) {
         if (value.streamName.equals(streamName)) {
           if (value.hasSnapshot()) {
             values.clear();
-            latestSnapshot = value.snapshot;
+            latestSnapshotValue = value;
           } else {
             values.add(value);
           }
         }
       }
       
-      final int streamVersion = values.isEmpty() ? 0 : values.get(values.size() - 1).streamVersion;
+      final int snapshotVersion = latestSnapshotValue == null ? 0 : latestSnapshotValue.streamVersion;
+      final int streamVersion = values.isEmpty() ? snapshotVersion : values.get(values.size() - 1).streamVersion;
       
-      return new EventStream(streamName, streamVersion, values, latestSnapshot);
+      return new EventStream(streamName, streamVersion, values, latestSnapshotValue == null ? "" : latestSnapshotValue.snapshot);
     }
   }
 }

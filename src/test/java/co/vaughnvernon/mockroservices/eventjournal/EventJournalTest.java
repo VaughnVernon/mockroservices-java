@@ -108,17 +108,15 @@ public class EventJournalTest {
     final EventStream eventStream123 = streamReader.streamFor("name123");
     assertEquals("name123", eventStream123.streamName);
     assertEquals(3, eventStream123.streamVersion);
-    assertEquals(2, eventStream123.stream.size());
+    assertEquals(1, eventStream123.stream.size());
     assertEquals("SNAPSHOT123-2", eventStream123.snapshot);
-    assertEquals(new EventValue("name123", 2, "type1-1", "type1-1_instance1", "SNAPSHOT123-2"), eventStream123.stream.get(0));
-    assertEquals(new EventValue("name123", 3, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(1));
+    assertEquals(new EventValue("name123", 3, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(0));
     
     final EventStream eventStream456 = streamReader.streamFor("name456");
     assertEquals("name456", eventStream456.streamName);
     assertEquals(2, eventStream456.streamVersion);
-    assertEquals(1, eventStream456.stream.size());
+    assertEquals(0, eventStream456.stream.size());
     assertEquals("SNAPSHOT456-2", eventStream456.snapshot);
-    assertEquals(new EventValue("name456", 2, "type2-1", "type2-1_instance1", "SNAPSHOT456-2"), eventStream456.stream.get(0));
 
     journal.close();
   }
