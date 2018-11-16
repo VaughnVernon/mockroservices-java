@@ -16,12 +16,12 @@ package co.vaughnvernon.mockroservices.model;
 
 import java.util.List;
 
-public abstract class ProcressManager extends SourcedEntity<Command> {
-  protected ProcressManager(final List<Command> stream, final int streamVersion) {
+public abstract class ProcessManager extends SourcedEntity<Command> {
+  protected ProcessManager(final List<Command> stream, final int streamVersion) {
     super(stream, streamVersion);
   }
 
-  protected ProcressManager() {
+  protected ProcessManager() {
     super();
   }
 
