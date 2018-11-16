@@ -22,54 +22,54 @@ import java.util.List;
 import org.junit.Test;
 
 import co.vaughnvernon.mockroservices.model.DomainEvent;
-import co.vaughnvernon.mockroservices.model.EventSourcedRootEntity;
+import co.vaughnvernon.mockroservices.model.SourcedEntity;
 
 public class EventSourcedRootEntityTest {
 
   @Test
   public void testProductDefinedEventKept() throws Exception {
     final Product product = new Product("dice-fuz-1", "Fuzzy dice.", 999);
-    assertEquals(1, product.mutatingEvents().size());
+    assertEquals(1, product.applied().size());
     assertEquals("dice-fuz-1", product.name);
     assertEquals("Fuzzy dice.", product.description);
     assertEquals(999, product.price);
-    assertEquals(new ProductDefined("dice-fuz-1", "Fuzzy dice.", 999), product.mutatingEvents().get(0));
+    assertEquals(new ProductDefined("dice-fuz-1", "Fuzzy dice.", 999), product.applied().get(0));
   }
   
   @Test
   public void testProductNameChangedEventKept() throws Exception {
     final Product product = new Product("dice-fuz-1", "Fuzzy dice.", 999);
     
-    product.mutatingEvents().clear();
+    product.applied().clear();
     
     product.changeName("dice-fuzzy-1");
-    assertEquals(1, product.mutatingEvents().size());
+    assertEquals(1, product.applied().size());
     assertEquals("dice-fuzzy-1", product.name);
-    assertEquals(new ProductNameChanged("dice-fuzzy-1"), product.mutatingEvents().get(0));
+    assertEquals(new ProductNameChanged("dice-fuzzy-1"), product.applied().get(0));
   }
   
   @Test
   public void testProductDescriptionChangedEventsKept() throws Exception {
     final Product product = new Product("dice-fuz-1", "Fuzzy dice.", 999);
     
-    product.mutatingEvents().clear();
+    product.applied().clear();
     
     product.changeDescription("Fuzzy dice, and all.");
-    assertEquals(1, product.mutatingEvents().size());
+    assertEquals(1, product.applied().size());
     assertEquals("Fuzzy dice, and all.", product.description);
-    assertEquals(new ProductDescriptionChanged("Fuzzy dice, and all."), product.mutatingEvents().get(0));
+    assertEquals(new ProductDescriptionChanged("Fuzzy dice, and all."), product.applied().get(0));
   }
   
   @Test
   public void testProductPriceChangedEventKept() throws Exception {
     final Product product = new Product("dice-fuz-1", "Fuzzy dice.", 999);
     
-    product.mutatingEvents().clear();
+    product.applied().clear();
     
     product.changePrice(995);
-    assertEquals(1, product.mutatingEvents().size());
+    assertEquals(1, product.applied().size());
     assertEquals(995, product.price);
-    assertEquals(new ProductPriceChanged(995), product.mutatingEvents().get(0));
+    assertEquals(new ProductPriceChanged(995), product.applied().get(0));
   }
   
   @Test
@@ -79,11 +79,11 @@ public class EventSourcedRootEntityTest {
     product.changeDescription("Fuzzy dice, and all.");
     product.changePrice(995);
 
-    final Product productAgain = new Product(product.mutatingEvents(), product.mutatedVersion());
+    final Product productAgain = new Product(product.applied(), product.nextVersion());
     assertEquals(product, productAgain);
   }
   
-  public class Product extends EventSourcedRootEntity {
+  public class Product extends SourcedEntity<DomainEvent> {
     public String name;
     public String description;
     public long price;
