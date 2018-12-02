@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class DomainEvent {
+public abstract class DomainEvent implements SourceType {
   public final long occurredOn;
   public final int eventVersion;
   

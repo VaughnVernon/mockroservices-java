@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Command {
+public abstract class Command implements SourceType {
   public final long occurredOn;
   public final int commandVersion;
   

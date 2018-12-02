@@ -17,32 +17,31 @@ package co.vaughnvernon.mockroservices.eventjournal;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.vaughnvernon.mockroservices.model.DomainEvent;
 import co.vaughnvernon.mockroservices.serialization.Serialization;
 
 public abstract class Repository {
-  protected EventBatch toBatch(final List<DomainEvent> domainEvents) {
-    final EventBatch batch = new EventBatch(domainEvents.size());
-    for (final DomainEvent domainEvent : domainEvents) {
-      final String eventType = domainEvent.getClass().getName();
-      final String eventBody = Serialization.serialize(domainEvent);
+  protected <T> EventBatch toBatch(final List<T> sources) {
+    final EventBatch batch = new EventBatch(sources.size());
+    for (final T source : sources) {
+      final String eventType = source.getClass().getName();
+      final String eventBody = Serialization.serialize(source);
       batch.addEntry(eventType, eventBody);
     }
     return batch;
   }
   
   @SuppressWarnings("unchecked")
-  protected List<DomainEvent> toEvents(final List<EventValue> stream) {
-    final List<DomainEvent> eventStream = new ArrayList<>(stream.size());
+  protected <T> List<T> toSourceStream(final List<EventValue> stream) {
+    final List<T> sourceStream = new ArrayList<>(stream.size());
     try {
       for (final EventValue value : stream) {
-        final Class<DomainEvent> type = (Class<DomainEvent>) Class.forName(value.type);
-        final DomainEvent event = Serialization.deserialize(value.body, type);
-        eventStream.add(event);
+        final Class<T> type = (Class<T>) Class.forName(value.type);
+        final T source = Serialization.deserialize(value.body, type);
+        sourceStream.add(source);
       }
     } catch (Exception e) {
       // TODO: handle
     }
-    return eventStream;
+    return sourceStream;
   }
 }
