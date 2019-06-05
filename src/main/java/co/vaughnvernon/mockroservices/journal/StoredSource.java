@@ -12,12 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
-public final class StoredEvent {
+public final class StoredSource {
   public static final long NO_ID = -1L;
   
-  public final EventValue eventValue;
+  public final EntryValue entryValue;
   public final long id;
 
   public boolean isValid() {
@@ -26,27 +26,27 @@ public final class StoredEvent {
 
   @Override
   public int hashCode() {
-    return Long.hashCode(id) + eventValue.hashCode();
+    return Long.hashCode(id) + entryValue.hashCode();
   }
 
   @Override
   public boolean equals(final Object other) {
-    if (other == null || other.getClass() != StoredEvent.class) {
+    if (other == null || other.getClass() != StoredSource.class) {
       return false;
     }
 
-    final StoredEvent otherStoredEvent = (StoredEvent) other;
+    final StoredSource otherStoredSource = (StoredSource) other;
     
-    return this.id == otherStoredEvent.id && this.eventValue.equals(otherStoredEvent.eventValue);
+    return this.id == otherStoredSource.id && this.entryValue.equals(otherStoredSource.entryValue);
   }
 
   @Override
   public String toString() {
-    return "StoredEvent[id=" + id + " eventValue=" + eventValue + "]";
+    return "StoredSource[id=" + id + " entryValue=" + entryValue + "]";
   }
 
-  protected StoredEvent(final long id, final EventValue eventValue) {
+  protected StoredSource(final long id, final EntryValue entryValue) {
     this.id = id;
-    this.eventValue = eventValue;
+    this.entryValue = entryValue;
   }
 }

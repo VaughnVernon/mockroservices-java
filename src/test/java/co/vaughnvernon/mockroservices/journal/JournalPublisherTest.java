@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,35 +21,38 @@ import java.util.List;
 
 import org.junit.Test;
 
+import co.vaughnvernon.mockroservices.journal.EntryBatch;
+import co.vaughnvernon.mockroservices.journal.JournalPublisher;
+import co.vaughnvernon.mockroservices.journal.Journal;
 import co.vaughnvernon.mockroservices.messagebus.Message;
 import co.vaughnvernon.mockroservices.messagebus.MessageBus;
 import co.vaughnvernon.mockroservices.messagebus.Subscriber;
 import co.vaughnvernon.mockroservices.messagebus.Topic;
 
-public class EventJournalPublisherTest {
+public class JournalPublisherTest {
 
   @Test
-  public void testEventJournalPublisher() throws Exception {
-    final EventJournal eventJournal = EventJournal.open("test-ej");
+  public void testJournalPublisher() throws Exception {
+    final Journal journal = Journal.open("test-ej");
     final MessageBus messageBus = MessageBus.start("test-bus");
     final Topic topic = messageBus.openTopic("test-topic");
-    EventJournalPublisher journalPublisher =
-        EventJournalPublisher.using(eventJournal.name(), messageBus.name(), topic.name());
+    JournalPublisher journalPublisher =
+        JournalPublisher.using(journal.name(), messageBus.name(), topic.name());
     
     final TestSubscriber subscriber = new TestSubscriber();
     topic.subscribe(subscriber);
     
-    final EventBatch batch1 = new EventBatch();
+    final EntryBatch batch1 = new EntryBatch();
     for (int idx = 0; idx < 3; ++idx) {
       batch1.addEntry("test1type", "test1instance" + idx);
     }
-    eventJournal.write("test1", 0, batch1);
+    journal.write("test1", 0, batch1);
     
-    final EventBatch batch2 = new EventBatch();
+    final EntryBatch batch2 = new EntryBatch();
     for (int idx = 0; idx < 3; ++idx) {
       batch2.addEntry("test2type", "test2instance" + idx);
     }
-    eventJournal.write("test2", 0, batch2);
+    journal.write("test2", 0, batch2);
 
     subscriber.waitForExpectedMessages(6);
     

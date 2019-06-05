@@ -12,16 +12,24 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
-public class EventStreamReader {
-  private final EventJournal eventJournal;
+import java.util.List;
 
-  public EventStream streamFor(final String streamName) {
-    return eventJournal.readStream(streamName);
+public class EntryStream {
+  public final String snapshot;
+  public final List<EntryValue> stream;
+  public final String streamName;
+  public final int streamVersion;
+  
+  public boolean hasSnapshot() {
+    return !snapshot.isEmpty();
   }
-
-  protected EventStreamReader(EventJournal eventJournal) {
-    this.eventJournal = eventJournal;
+  
+  protected EntryStream(final String streamName, int streamVersion, List<EntryValue> stream, final String snapshot) {
+    this.streamName = streamName;
+    this.streamVersion = streamVersion;
+    this.stream = stream;
+    this.snapshot = snapshot;
   }
 }

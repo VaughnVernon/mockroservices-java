@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,21 +20,21 @@ import java.util.List;
 import co.vaughnvernon.mockroservices.serialization.Serialization;
 
 public abstract class Repository {
-  protected <T> EventBatch toBatch(final List<T> sources) {
-    final EventBatch batch = new EventBatch(sources.size());
+  protected <T> EntryBatch toBatch(final List<T> sources) {
+    final EntryBatch batch = new EntryBatch(sources.size());
     for (final T source : sources) {
-      final String eventType = source.getClass().getName();
-      final String eventBody = Serialization.serialize(source);
-      batch.addEntry(eventType, eventBody);
+      final String sourceType = source.getClass().getName();
+      final String sourceBody = Serialization.serialize(source);
+      batch.addEntry(sourceType, sourceBody);
     }
     return batch;
   }
   
   @SuppressWarnings("unchecked")
-  protected <T> List<T> toSourceStream(final List<EventValue> stream) {
+  protected <T> List<T> toSourceStream(final List<EntryValue> stream) {
     final List<T> sourceStream = new ArrayList<>(stream.size());
     try {
-      for (final EventValue value : stream) {
+      for (final EntryValue value : stream) {
         final Class<T> type = (Class<T>) Class.forName(value.type);
         final T source = Serialization.deserialize(value.body, type);
         sourceStream.add(source);

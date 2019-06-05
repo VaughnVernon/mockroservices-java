@@ -12,9 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
-public class EventValue {
+public class EntryValue {
   public static final int NO_STREAM_VERSION = -1;
   
   public final String body;
@@ -34,26 +34,26 @@ public class EventValue {
 
   @Override
   public boolean equals(Object other) {
-    if (other == null || other.getClass() != EventValue.class) {
+    if (other == null || other.getClass() != EntryValue.class) {
       return false;
     }
     
-    final EventValue otherEventValue = (EventValue) other;
+    final EntryValue otherEntryValue = (EntryValue) other;
     
-    return this.streamName.equals(otherEventValue.streamName) &&
-        this.streamVersion == otherEventValue.streamVersion &&
-        this.type.equals(otherEventValue.type) &&
-        this.body.equals(otherEventValue.body) &&
-        this.snapshot.equals(otherEventValue.snapshot);
+    return this.streamName.equals(otherEntryValue.streamName) &&
+        this.streamVersion == otherEntryValue.streamVersion &&
+        this.type.equals(otherEntryValue.type) &&
+        this.body.equals(otherEntryValue.body) &&
+        this.snapshot.equals(otherEntryValue.snapshot);
   }
 
   @Override
   public String toString() {
-    return "EventValue[streamName=" + streamName + " streamVersion=" + streamVersion +
+    return "EntryValue[streamName=" + streamName + " streamVersion=" + streamVersion +
         " type=" + type + " body=" + body + " snapshot=" + snapshot + "]";
   }
 
-  protected EventValue(
+  protected EntryValue(
       final String streamName,
       final int streamVersion,
       final String type,

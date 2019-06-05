@@ -12,35 +12,35 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class EventBatch {
+public final class EntryBatch {
   public final List<Entry> entries;
   
-  public static EventBatch of(final String type, final String body) {
-    return new EventBatch(type, body);
+  public static EntryBatch of(final String type, final String body) {
+    return new EntryBatch(type, body);
   }
   
-  public static EventBatch of(final String type, final String body, final String snapshot) {
-    return new EventBatch(type, body, snapshot);
+  public static EntryBatch of(final String type, final String body, final String snapshot) {
+    return new EntryBatch(type, body, snapshot);
   }
   
-  public EventBatch() {
+  public EntryBatch() {
     this(2);
   }
   
-  public EventBatch(final int entries) {
+  public EntryBatch(final int entries) {
     this.entries = new ArrayList<>(entries);
   }
   
-  public EventBatch(final String type, final String body) {
+  public EntryBatch(final String type, final String body) {
     this(type, body, "");
   }
   
-  public EventBatch(final String type, final String body, final String snapshot) {
+  public EntryBatch(final String type, final String body, final String snapshot) {
     this();
     
     this.addEntry(type, body, snapshot);

@@ -12,23 +12,23 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
 import co.vaughnvernon.mockroservices.messagebus.Message;
 import co.vaughnvernon.mockroservices.messagebus.MessageBus;
 import co.vaughnvernon.mockroservices.messagebus.Topic;
 
-public class EventJournalPublisher extends Thread {
+public class JournalPublisher extends Thread {
   private volatile boolean closed;
-  private final EventJournalReader reader;
+  private final JournalReader reader;
   private final Topic topic;
   
-  public static EventJournalPublisher using(
-      final String eventJournalName,
+  public static JournalPublisher using(
+      final String journalName,
       final String messageBusName,
       final String topicName) {
     
-    return new EventJournalPublisher(eventJournalName, messageBusName, topicName);
+    return new JournalPublisher(journalName, messageBusName, topicName);
   }
   
   public void close() {
@@ -38,18 +38,18 @@ public class EventJournalPublisher extends Thread {
   @Override
   public void run() {
     while (!closed) {
-      final StoredEvent event = reader.readNext();
+      final StoredSource source = reader.readNext();
       
-      if (event.isValid()) {
+      if (source.isValid()) {
         final Message message =
             new Message(
-                String.valueOf(event.id),
-                event.eventValue.type,
-                event.eventValue.body);
+                String.valueOf(source.id),
+                source.entryValue.type,
+                source.entryValue.body);
 
         topic.publish(message);
         
-        reader.acknowledge(event.id);
+        reader.acknowledge(source.id);
         
       } else {
         try {
@@ -61,12 +61,12 @@ public class EventJournalPublisher extends Thread {
     }
   }
   
-  protected EventJournalPublisher(
-      final String eventJournalName,
+  protected JournalPublisher(
+      final String journalName,
       final String messageBusName,
       final String topicName) {
 
-    this.reader = EventJournal.open(eventJournalName).reader("topic-" + topicName + "-reader");
+    this.reader = Journal.open(journalName).reader("topic-" + topicName + "-reader");
     this.topic = MessageBus.start(messageBusName).openTopic(topicName);
     
     start();

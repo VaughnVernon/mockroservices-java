@@ -12,10 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-package co.vaughnvernon.mockroservices.eventjournal;
+package co.vaughnvernon.mockroservices.journal;
 
-public class EventJournalReader {
-  private final EventJournal eventJournal;
+public class JournalReader {
+  private final Journal journal;
   private final String name;
   private int readSequence;
   
@@ -33,21 +33,21 @@ public class EventJournalReader {
     return name;
   }
 
-  public StoredEvent readNext() {
-    if (readSequence <= eventJournal.greatestId()) {
-      return new StoredEvent(readSequence, eventJournal.eventValueAt(readSequence));
+  public StoredSource readNext() {
+    if (readSequence <= journal.greatestId()) {
+      return new StoredSource(readSequence, journal.entryValueAt(readSequence));
     }
 
-    return new StoredEvent(StoredEvent.NO_ID, new EventValue("", EventValue.NO_STREAM_VERSION, "", "", ""));
+    return new StoredSource(StoredSource.NO_ID, new EntryValue("", EntryValue.NO_STREAM_VERSION, "", "", ""));
   }
 
   public void reset() {
     readSequence = 0;
   }
 
-  protected EventJournalReader(final String name, final EventJournal eventJournal) {
+  protected JournalReader(final String name, final Journal journal) {
     this.name = name;
-    this.eventJournal = eventJournal;
+    this.journal = journal;
     this.readSequence = 0;
   }
 }
