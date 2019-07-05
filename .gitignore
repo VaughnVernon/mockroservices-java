@@ -5,3 +5,6 @@ target/
 .settings
 .DS_Store
 *.log
+
+### VS Code ###
+.sts4-cache/
