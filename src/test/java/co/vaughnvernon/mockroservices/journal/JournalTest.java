@@ -18,6 +18,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
+import co.vaughnvernon.mockroservices.serialization.Serialization;
+import co.vaughnvernon.mockroservices.serialization.SerializationTest;
 import org.junit.Test;
 
 import co.vaughnvernon.mockroservices.journal.EntryValue;
@@ -27,6 +29,8 @@ import co.vaughnvernon.mockroservices.journal.EntryStreamReader;
 import co.vaughnvernon.mockroservices.journal.Journal;
 import co.vaughnvernon.mockroservices.journal.JournalReader;
 import co.vaughnvernon.mockroservices.journal.StoredSource;
+
+import java.util.Date;
 
 public class JournalTest {
 
@@ -65,6 +69,19 @@ public class JournalTest {
     reader.acknowledge(1);
     assertEquals(new StoredSource(-1, new EntryValue("", -1, "", "", "")), reader.readNext());
 
+    journal.close();
+  }
+
+  @Test
+  public void testWriteReadWithStreamNamePrefix() throws Exception {
+    final Journal journal = Journal.open("test");
+    Person person = new Person("John", new Date());
+    final String personEntry = Serialization.serialize(person);
+    journal.write(person.getClass(), "123", 1, new EntryBatch(person.getClass().getName(), personEntry));
+    final EntryStreamReader reader = journal.streamReader();
+    EntryStream entryStream = reader.streamFor(person.getClass(), "123");
+    assertEquals("Person_123", entryStream.streamName);
+    assertEquals(1, entryStream.streamVersion);
     journal.close();
   }
 
@@ -120,5 +137,26 @@ public class JournalTest {
     assertEquals("SNAPSHOT456-2", eventStream456.snapshot);
 
     journal.close();
+  }
+
+  public static class Person {
+    public final Date birthDate;
+    public final String name;
+
+    @Override
+    public boolean equals(final Object other) {
+      if (other == null || other.getClass() != SerializationTest.Person.class) {
+        return false;
+      }
+
+      final SerializationTest.Person otherPerson = (SerializationTest.Person) other;
+
+      return this.name.equals(otherPerson.name) && this.birthDate.equals(otherPerson.birthDate);
+    }
+
+    Person(final String name, final Date birthDate) {
+      this.name = name;
+      this.birthDate = birthDate;
+    }
   }
 }

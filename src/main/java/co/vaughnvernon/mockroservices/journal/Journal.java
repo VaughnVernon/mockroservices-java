@@ -84,6 +84,14 @@ public class Journal {
     }
   }
 
+  public <T> void write(final Class<T> streamClass, final String streamName, final int streamVersion, final EntryBatch batch) {
+    synchronized (store) {
+      for (final EntryBatch.Entry entry : batch.entries) {
+        store.add(new EntryValue(StreamNameBuilder.buildStreamNameFor(streamClass, streamName), streamVersion, entry.type, entry.body, entry.snapshot));
+      }
+    }
+  }
+
   protected Journal(final String name) {
     this.name = name;
     this.readers = new HashMap<String, JournalReader>();

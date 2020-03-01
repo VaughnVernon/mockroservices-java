@@ -21,6 +21,10 @@ public class EntryStreamReader {
     return journal.readStream(streamName);
   }
 
+  public <T> EntryStream streamFor(final Class<T> streamClass, final String streamName) {
+    return journal.readStream(StreamNameBuilder.buildStreamNameFor(streamClass, streamName));
+  }
+
   protected EntryStreamReader(Journal journal) {
     this.journal = journal;
   }
