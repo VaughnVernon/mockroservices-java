@@ -5,3 +5,5 @@ target/
 .settings
 .DS_Store
 *.log
+/.idea/
+/mockroservices.iml
