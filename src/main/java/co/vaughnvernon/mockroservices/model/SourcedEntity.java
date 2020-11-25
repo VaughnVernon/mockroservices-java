@@ -61,14 +61,14 @@ public abstract class SourcedEntity<Source> {
   @SuppressWarnings("unchecked")
   protected void apply(final Source... sources) {
     for (final Source source : sources) {
-      applied().add(source);
+      applied.add(source);
       mutateWhen(source);
     }
   }
 
   protected void apply(final Collection<Source> sources) {
     for (final Source source : sources) {
-      applied().add(source);
+      applied.add(source);
       mutateWhen(source);
     }
   }

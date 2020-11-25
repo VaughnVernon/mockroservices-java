@@ -20,7 +20,7 @@ import java.util.Map;
 public class MessageBus {
   private static final Map<String, MessageBus> messageBuses = new HashMap<String, MessageBus>();
 
-  private final String name;
+  public final String name;
   private final Map<String, Topic> topics;
 
   public static synchronized MessageBus start(final String name) {
@@ -31,7 +31,7 @@ public class MessageBus {
 
     final MessageBus messageBus = new MessageBus(name);
     messageBuses.put(name, messageBus);
-    
+
     return messageBus;
   }
 

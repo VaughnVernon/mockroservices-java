@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Topic extends Thread {
   private boolean closed;
-  private final String name;
+  public final String name;
   private final ConcurrentLinkedQueue<Message> queue;
   private final Set<Subscriber> subscribers;
 
@@ -32,7 +32,7 @@ public class Topic extends Thread {
         // ignore
       }
     }
-    
+
     closed = true;
   }
 
@@ -48,35 +48,9 @@ public class Topic extends Thread {
     synchronized (subscribers) {
       subscribers.add(subscriber);
 
-      if (subscribers.size() == 1) {
-          start();
-      }
-    }
-  }
-
-  @Override
-  public void run() {
-    while (!closed) {
-      final Message message = queue.poll();
-      
-      if (message != null) {
-        synchronized (subscribers) {
-          for (final Subscriber subscriber : subscribers) {
-            try {
-              subscriber.handle(message);
-            } catch (Exception e) {
-              System.out.println("MessageBus/Topic: " + name + " error: " + e.getMessage());
-              e.printStackTrace();
-            }
-          }
-        }
-      } else {
-        try {
-          Thread.sleep(100L);
-        } catch (InterruptedException e) {
-          // ignore
-        }
-      }
+      // if (subscribers.size() == 1) {
+      //     start();
+      // }
     }
   }
 
@@ -85,5 +59,33 @@ public class Topic extends Thread {
     this.closed = false;
     this.queue = new ConcurrentLinkedQueue<>();
     this.subscribers = new HashSet<Subscriber>();
+
+    start();
+  }
+
+  @Override
+  public void run() {
+    while (!closed) {
+      synchronized (subscribers) {
+        if (subscribers.size() > 0) {
+          if (queue.peek() != null) {
+            final Message message = queue.poll();
+            for (final Subscriber subscriber : subscribers) {
+              try {
+                subscriber.handle(message);
+              } catch (Exception e) {
+                System.out.println("Error dispatching message to handler, MessageBus/Topic: " + name + " error: " + e.getMessage());
+                e.printStackTrace();
+              }
+            }
+          }
+        }
+      }
+      try {
+        Thread.sleep(100L);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+    }
   }
 }

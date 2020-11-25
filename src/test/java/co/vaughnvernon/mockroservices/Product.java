@@ -61,6 +61,7 @@ public class Product extends SourcedEntity<DomainEvent>  {
   }
 
   public void when(final ProductDefined event) {
+    this.id = event.id;
     this.name = event.name;
     this.description = event.description;
     this.price = event.price;

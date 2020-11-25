@@ -72,7 +72,7 @@ public class JournalPublisherTest {
   public void testJournalPublisherForCategory() throws Exception {
     final Journal journal = Journal.open("test-ej-cat");
     final MessageBus messageBus = MessageBus.start("test-bus-cat");
-    final Topic topic = messageBus.openTopic("test-cat");
+    final Topic topic = messageBus.openTopic("cat-test");
     JournalPublisher journalPublisher = JournalPublisher.using(journal.name(), messageBus.name(), topic.name());
 
     final TestSubscriber subscriber = new TestSubscriber();
@@ -97,8 +97,8 @@ public class JournalPublisherTest {
     assertEquals(6, subscriber.handledMessages.size());
   }
 
-  private class TestSubscriber implements Subscriber {
-    private final List<Message> handledMessages = new ArrayList<>();
+  public static class TestSubscriber implements Subscriber {
+    public final List<Message> handledMessages = new ArrayList<>();
 
     public void handle(final Message message) {
       handledMessages.add(message);

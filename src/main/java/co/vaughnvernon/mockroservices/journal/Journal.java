@@ -107,19 +107,28 @@ public class Journal {
     this.readers = new HashMap<String, JournalReader>();
     this.store = new ArrayList<EntryValue>();
   }
-//TODO: maybe
-  protected EntryValue entryValueAt(final int id) {
+
+  protected EntryValue entryValueAt(final int id, final String streamName) {
     synchronized (store) {
-      if (id >= store.size()) {
+      if (id > greatestId(streamName)) {
         throw new IllegalArgumentException("The id does not exist: " + id);
       }
-
-      return store.get(id);
+      String maybeCatStreamName = maybeCategoryStreamName(streamName);
+      if (isCategoryStream(streamName)) {
+        return store.stream().filter(e -> e.streamName.startsWith(maybeCatStreamName)).collect(Collectors.toList()).get(id);
+      }
+      return store.stream().filter(e -> e.streamName.equals(maybeCatStreamName)).collect(Collectors.toList()).get(id);
     }
   }
-//TODO: maybe
-  protected int greatestId() {
-    return store.size() - 1;
+
+  protected int greatestId(String streamName) {
+    synchronized (store) {
+      String maybeCatStreamName = maybeCategoryStreamName(streamName);
+      if (isCategoryStream(streamName)) {
+        return Math.toIntExact(store.stream().filter(e -> e.streamName.startsWith(maybeCatStreamName)).count() - 1);
+      }
+      return Math.toIntExact(store.stream().filter(e -> e.streamName.equals(maybeCatStreamName)).count() - 1);
+    }
   }
 
   protected EntryStream readStream(final String streamName) {
@@ -130,7 +139,7 @@ public class Journal {
 
       int globalIndex = 0;
       for (final EntryValue value : storeCopy) {
-        if (canRead(value, streamName)) { // if(value.streamName.equals(streamName))
+        if (canRead(value, streamName)) {
           if (value.hasSnapshot()) {
             values.clear();
             latestSnapshotValue = value;
@@ -187,7 +196,7 @@ public class Journal {
   }
 
   private EntryValue lastOrDefault(String streamName) {
-    List<EntryValue> filtered = store.stream().filter(e -> e.streamName == streamName).collect(Collectors.toList());
+    List<EntryValue> filtered = store.stream().filter(e -> e.streamName.equals(streamName)).collect(Collectors.toList());
     if(filtered.size()>0) {
       return filtered.get(filtered.size()-1);
     } else {
