@@ -47,10 +47,6 @@ public class Topic extends Thread {
   public void subscribe(final Subscriber subscriber) {
     synchronized (subscribers) {
       subscribers.add(subscriber);
-
-      // if (subscribers.size() == 1) {
-      //     start();
-      // }
     }
   }
 
