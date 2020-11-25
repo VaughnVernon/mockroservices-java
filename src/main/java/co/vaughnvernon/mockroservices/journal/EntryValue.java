@@ -16,7 +16,7 @@ package co.vaughnvernon.mockroservices.journal;
 
 public class EntryValue {
   public static final int NO_STREAM_VERSION = -1;
-  
+
   public final String body;
   public final String snapshot;
   public final String streamName;
@@ -26,7 +26,7 @@ public class EntryValue {
   public boolean hasSnapshot() {
     return !snapshot.isEmpty();
   }
-  
+
   @Override
   public int hashCode() {
     return this.streamName.hashCode() + Integer.hashCode(this.streamVersion);
@@ -37,9 +37,9 @@ public class EntryValue {
     if (other == null || other.getClass() != EntryValue.class) {
       return false;
     }
-    
+
     final EntryValue otherEntryValue = (EntryValue) other;
-    
+
     return this.streamName.equals(otherEntryValue.streamName) &&
         this.streamVersion == otherEntryValue.streamVersion &&
         this.type.equals(otherEntryValue.type) &&
@@ -59,11 +59,15 @@ public class EntryValue {
       final String type,
       final String body,
       final String snapshot) {
-    
+
     this.streamName = streamName;
     this.streamVersion = streamVersion;
     this.type = type;
     this.body = body;
     this.snapshot = snapshot;
+  }
+  //internal
+  EntryValue withStreamVersion(int streamVersion) {
+    return new EntryValue(streamName, streamVersion, type, body, snapshot);
   }
 }

@@ -1,6 +1,6 @@
 package co.vaughnvernon.mockroservices.journal;
 
-import co.vaughnvernon.mockroservices.serialization.SerializationTest;
+import co.vaughnvernon.mockroservices.Person;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,6 +9,11 @@ public class StreamNameBuilderTest {
 
     @Test
     public void testThatStreamNameBuilderBuildsCorrectStream() {
-        assertEquals("Person_1234", StreamNameBuilder.buildStreamNameFor(SerializationTest.Person.class, "1234"));
+      assertEquals("person_1234", StreamNameBuilder.buildStreamNameFor(Person.class, "1234"));
+    }
+
+    @Test
+    public void TestThatStreamNameBuilderBuildsCorrectCategoryStream() {
+      assertEquals("cat-person", StreamNameBuilder.buildStreamNameFor(Person.class));
     }
 }

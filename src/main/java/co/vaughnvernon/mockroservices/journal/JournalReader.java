@@ -18,7 +18,7 @@ public class JournalReader {
   private final Journal journal;
   private final String name;
   private int readSequence;
-  
+
   public void acknowledge(final long id) {
     if (id == readSequence) {
         ++readSequence;

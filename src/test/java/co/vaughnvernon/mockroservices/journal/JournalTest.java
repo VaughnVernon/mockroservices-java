@@ -18,17 +18,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
+import co.vaughnvernon.mockroservices.Person;
 import co.vaughnvernon.mockroservices.serialization.Serialization;
-import co.vaughnvernon.mockroservices.serialization.SerializationTest;
 import org.junit.Test;
-
-import co.vaughnvernon.mockroservices.journal.EntryValue;
-import co.vaughnvernon.mockroservices.journal.EntryBatch;
-import co.vaughnvernon.mockroservices.journal.EntryStream;
-import co.vaughnvernon.mockroservices.journal.EntryStreamReader;
-import co.vaughnvernon.mockroservices.journal.Journal;
-import co.vaughnvernon.mockroservices.journal.JournalReader;
-import co.vaughnvernon.mockroservices.journal.StoredSource;
 
 import java.util.Date;
 
@@ -60,14 +52,14 @@ public class JournalTest {
   @Test
   public void testWriteRead() throws Exception {
     final Journal journal = Journal.open("test");
-    journal.write("name123", 1, EntryBatch.of("type1", "type1_instance1"));
-    journal.write("name456", 1, EntryBatch.of("type2", "type2_instance1"));
-    final JournalReader reader = journal.reader("test_reader");
-    assertEquals(new StoredSource(0, new EntryValue("name123", 1, "type1", "type1_instance1", "")), reader.readNext());
+    journal.write("name123", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type1", "type1_instance1"));
+    journal.write("name456", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type2", "type2_instance1"));
+    final JournalReader reader = journal.reader("cat-name");
+    assertEquals(new StoredSource(0, new EntryValue("name123", 0, "type1", "type1_instance1", "")), reader.readNext());
     reader.acknowledge(0);
-    assertEquals(new StoredSource(1, new EntryValue("name456", 1, "type2", "type2_instance1", "")), reader.readNext());
+    assertEquals(new StoredSource(1, new EntryValue("name456", 0, "type2", "type2_instance1", "")), reader.readNext());
     reader.acknowledge(1);
-    assertEquals(new StoredSource(-1, new EntryValue("", -1, "", "", "")), reader.readNext());
+    assertEquals(new StoredSource(-1, new EntryValue("", EntryValue.NO_STREAM_VERSION, "", "", "")), reader.readNext());
 
     journal.close();
   }
@@ -77,37 +69,37 @@ public class JournalTest {
     final Journal journal = Journal.open("test");
     Person person = new Person("John", new Date());
     final String personEntry = Serialization.serialize(person);
-    journal.write(person.getClass(), "123", 1, new EntryBatch(person.getClass().getName(), personEntry));
+    journal.write(person.getClass(), "123", EntryValue.NO_STREAM_VERSION, new EntryBatch(person.getClass().getName(), personEntry));
     final EntryStreamReader reader = journal.streamReader();
     EntryStream entryStream = reader.streamFor(person.getClass(), "123");
-    assertEquals("Person_123", entryStream.streamName);
-    assertEquals(1, entryStream.streamVersion);
+    assertEquals("person_123", entryStream.streamName);
+    assertEquals(0, entryStream.streamVersion);
     journal.close();
   }
 
   @Test
   public void testWriteReadStream() throws Exception {
     final Journal journal = Journal.open("test");
-    journal.write("name123", 1, EntryBatch.of("type1", "type1_instance1"));
-    journal.write("name456", 1, EntryBatch.of("type2", "type2_instance1"));
-    journal.write("name123", 2, EntryBatch.of("type1-1", "type1-1_instance1"));
-    journal.write("name123", 3, EntryBatch.of("type1-2", "type1-2_instance1"));
-    journal.write("name456", 2, EntryBatch.of("type2-1", "type2-1_instance1"));
-    
+    journal.write("name123", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type1", "type1_instance1"));
+    journal.write("name456", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type2", "type2_instance1"));
+    journal.write("name123", 0, EntryBatch.of("type1-1", "type1-1_instance1"));
+    journal.write("name123", 1, EntryBatch.of("type1-2", "type1-2_instance1"));
+    journal.write("name456", 0, EntryBatch.of("type2-1", "type2-1_instance1"));
+
     final EntryStreamReader streamReader = journal.streamReader();
-    
+
     final EntryStream eventStream123 = streamReader.streamFor("name123");
-    assertEquals(3, eventStream123.streamVersion);
+    assertEquals(2, eventStream123.streamVersion);
     assertEquals(3, eventStream123.stream.size());
-    assertEquals(new EntryValue("name123", 1, "type1", "type1_instance1", ""), eventStream123.stream.get(0));
-    assertEquals(new EntryValue("name123", 2, "type1-1", "type1-1_instance1", ""), eventStream123.stream.get(1));
-    assertEquals(new EntryValue("name123", 3, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(2));
-    
+    assertEquals(new EntryValue("name123", 0, "type1", "type1_instance1", ""), eventStream123.stream.get(0));
+    assertEquals(new EntryValue("name123", 1, "type1-1", "type1-1_instance1", ""), eventStream123.stream.get(1));
+    assertEquals(new EntryValue("name123", 2, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(2));
+
     final EntryStream eventStream456 = streamReader.streamFor("name456");
-    assertEquals(2, eventStream456.streamVersion);
+    assertEquals(1, eventStream456.streamVersion);
     assertEquals(2, eventStream456.stream.size());
-    assertEquals(new EntryValue("name456", 1, "type2", "type2_instance1", ""), eventStream456.stream.get(0));
-    assertEquals(new EntryValue("name456", 2, "type2-1", "type2-1_instance1", ""), eventStream456.stream.get(1));
+    assertEquals(new EntryValue("name456", 0, "type2", "type2_instance1", ""), eventStream456.stream.get(0));
+    assertEquals(new EntryValue("name456", 1, "type2-1", "type2-1_instance1", ""), eventStream456.stream.get(1));
 
     journal.close();
   }
@@ -115,48 +107,51 @@ public class JournalTest {
   @Test
   public void testWriteReadStreamSnapshot() throws Exception {
     final Journal journal = Journal.open("test");
-    journal.write("name123", 1, EntryBatch.of("type1", "type1_instance1", "SNAPSHOT123-1"));
-    journal.write("name456", 1, EntryBatch.of("type2", "type2_instance1", "SNAPSHOT456-1"));
-    journal.write("name123", 2, EntryBatch.of("type1-1", "type1-1_instance1", "SNAPSHOT123-2"));
-    journal.write("name123", 3, EntryBatch.of("type1-2", "type1-2_instance1"));
-    journal.write("name456", 2, EntryBatch.of("type2-1", "type2-1_instance1", "SNAPSHOT456-2"));
-    
+    journal.write("name123", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type1", "type1_instance1", "SNAPSHOT123-1"));
+    journal.write("name456", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type2", "type2_instance1", "SNAPSHOT456-1"));
+    journal.write("name123", 0, EntryBatch.of("type1-1", "type1-1_instance1", "SNAPSHOT123-2"));
+    journal.write("name123", 1, EntryBatch.of("type1-2", "type1-2_instance1"));
+    journal.write("name456", 0, EntryBatch.of("type2-1", "type2-1_instance1", "SNAPSHOT456-2"));
+
     final EntryStreamReader streamReader = journal.streamReader();
-    
+
     final EntryStream eventStream123 = streamReader.streamFor("name123");
     assertEquals("name123", eventStream123.streamName);
-    assertEquals(3, eventStream123.streamVersion);
+    assertEquals(2, eventStream123.streamVersion);
     assertEquals(1, eventStream123.stream.size());
     assertEquals("SNAPSHOT123-2", eventStream123.snapshot);
-    assertEquals(new EntryValue("name123", 3, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(0));
-    
+    // assertEquals(new EntryValue("name123", 3, "type1-2", "type1-2_instance1", ""), eventStream123.stream.get(0));
+
     final EntryStream eventStream456 = streamReader.streamFor("name456");
     assertEquals("name456", eventStream456.streamName);
-    assertEquals(2, eventStream456.streamVersion);
+    assertEquals(1, eventStream456.streamVersion);
     assertEquals(0, eventStream456.stream.size());
     assertEquals("SNAPSHOT456-2", eventStream456.snapshot);
 
     journal.close();
   }
 
-  public static class Person {
-    public final Date birthDate;
-    public final String name;
+  @Test
+  public void testWriteReadStreamCategory() {
+    final Journal journal = Journal.open("test");
 
-    @Override
-    public boolean equals(final Object other) {
-      if (other == null || other.getClass() != SerializationTest.Person.class) {
-        return false;
-      }
+    journal.write("name123", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type1", "type1_instance1"));
+    journal.write("name456", EntryValue.NO_STREAM_VERSION, EntryBatch.of("type2", "type2_instance1"));
+    journal.write("name123", 0, EntryBatch.of("type1-1", "type1-1_instance1"));
+    journal.write("name123", 1, EntryBatch.of("type1-2", "type1-2_instance1"));
+    journal.write("name456", 0, EntryBatch.of("type2-1", "type2-1_instance1"));
 
-      final SerializationTest.Person otherPerson = (SerializationTest.Person) other;
+    final EntryStreamReader streamReader = journal.streamReader();
 
-      return this.name.equals(otherPerson.name) && this.birthDate.equals(otherPerson.birthDate);
-    }
+    final EntryStream categoryEntryStream = streamReader.streamFor("cat-name");
+    assertEquals(4, categoryEntryStream.streamVersion);
+    assertEquals(5, categoryEntryStream.stream.size());
+    assertEquals(new EntryValue("name123", 0, "type1", "type1_instance1", ""), categoryEntryStream.stream.get(0));
+    assertEquals(new EntryValue("name456", 1, "type2", "type2_instance1", ""), categoryEntryStream.stream.get(1));
+    assertEquals(new EntryValue("name123", 2, "type1-1", "type1-1_instance1", ""), categoryEntryStream.stream.get(2));
+    assertEquals(new EntryValue("name123", 3, "type1-2", "type1-2_instance1", ""), categoryEntryStream.stream.get(3));
+    assertEquals(new EntryValue("name456", 4, "type2-1", "type2-1_instance1", ""), categoryEntryStream.stream.get(4));
 
-    Person(final String name, final Date birthDate) {
-      this.name = name;
-      this.birthDate = birthDate;
-    }
+    journal.close();
   }
 }

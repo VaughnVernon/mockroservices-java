@@ -23,11 +23,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import co.vaughnvernon.mockroservices.messagebus.Message;
-import co.vaughnvernon.mockroservices.messagebus.MessageBus;
-import co.vaughnvernon.mockroservices.messagebus.Subscriber;
-import co.vaughnvernon.mockroservices.messagebus.Topic;
-
 public class MessageBusTest {
 
   @Test
@@ -56,9 +51,9 @@ public class MessageBusTest {
     topic.publish(new Message("1", "type1", "test1"));
     topic.publish(new Message("2", "type2", "test2"));
     topic.publish(new Message("3", "type3", "test3"));
-    
+
     topic.close();
-    
+
     assertEquals(3, subscriber.handledMessages.size());
     final Message message1 = subscriber.handledMessages.get(0);
     assertEquals("1", message1.id);
@@ -76,7 +71,7 @@ public class MessageBusTest {
 
   private class TestSubscriber implements Subscriber {
     private final List<Message> handledMessages = new ArrayList<>();
-    
+
     public void handle(final Message message) {
       handledMessages.add(message);
     }
