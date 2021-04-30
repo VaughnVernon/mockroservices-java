@@ -17,6 +17,7 @@ package co.vaughnvernon.mockroservices.journal;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.vaughnvernon.mockroservices.model.DomainEvent;
 import co.vaughnvernon.mockroservices.serialization.Serialization;
 
 public abstract class Repository {
@@ -29,19 +30,26 @@ public abstract class Repository {
     }
     return batch;
   }
-  
+
+  protected <T extends DomainEvent> List<T> toSourceStream(final List<EntryValue> stream) {
+    return toSourceStream(stream, Long.MAX_VALUE);
+  }
+
   @SuppressWarnings("unchecked")
-  protected <T> List<T> toSourceStream(final List<EntryValue> stream) {
+  protected <T extends DomainEvent> List<T> toSourceStream(final List<EntryValue> stream, long validOn) {
     final List<T> sourceStream = new ArrayList<>(stream.size());
     try {
       for (final EntryValue value : stream) {
         final Class<T> type = (Class<T>) Class.forName(value.type);
         final T source = Serialization.deserialize(value.body, type);
-        sourceStream.add(source);
+        if(source.validOn <= validOn) {
+          sourceStream.add(source);
+        }
       }
     } catch (Exception e) {
       // TODO: handle
     }
+    sourceStream.sort((s1, s2) -> Long.compare(s1.validOn, s2.validOn));
     return sourceStream;
   }
 }

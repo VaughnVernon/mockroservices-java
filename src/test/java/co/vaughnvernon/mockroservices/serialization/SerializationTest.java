@@ -21,7 +21,8 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import co.vaughnvernon.mockroservices.serialization.Serialization;
+import co.vaughnvernon.mockroservices.Person;
+import co.vaughnvernon.mockroservices.Person.ClientPerson;
 
 public class SerializationTest {
 
@@ -36,7 +37,7 @@ public class SerializationTest {
     final String jsonPerson2 = Serialization.serialize(person2);
     assertEquals(jsonPerson1, jsonPerson2);
   }
-  
+
   @Test
   public void testDeserializationToClientClass() throws Exception {
     final Person person = new Person("First Middle Last, Jr.", new Date());
@@ -44,31 +45,5 @@ public class SerializationTest {
     final ClientPerson clientPerson = Serialization.deserialize(jsonPerson, ClientPerson.class);
     assertEquals(person.name, clientPerson.name);
     assertEquals(person.birthDate, clientPerson.birthDate);
-  }
-  
-  public static class Person {
-    public final Date birthDate;
-    public final String name;
-    
-    @Override
-    public boolean equals(final Object other) {
-      if (other == null || other.getClass() != Person.class) {
-        return false;
-      }
-      
-      final Person otherPerson = (Person) other;
-      
-      return this.name.equals(otherPerson.name) && this.birthDate.equals(otherPerson.birthDate);
-    }
-
-    Person(final String name, final Date birthDate) {
-      this.name = name;
-      this.birthDate = birthDate;
-    }
-  }
-  
-  public static class ClientPerson {
-    public String name;
-    public Date birthDate;
   }
 }

@@ -22,12 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.vaughnvernon.mockroservices.journal.EntryValue;
+
 public abstract class SourcedEntity<Source> {
   private static final String MUTATOR_METHOD_NAME = "when";
   private static final Map<String, Method> mutatorMethods = new HashMap<String, Method>();
 
-  private final List<Source> applied;
-  private final int currentVersion;
+  //readonly
+  public final List<Source> applied;
+  public final int currentVersion;
 
   public List<Source> applied() {
     return applied;
@@ -41,6 +44,11 @@ public abstract class SourcedEntity<Source> {
     return currentVersion() + 1;
   }
 
+  protected SourcedEntity() {
+    this.applied = new ArrayList<>(2);
+    this.currentVersion = EntryValue.NO_STREAM_VERSION;
+  }
+
   protected SourcedEntity(final List<Source> stream, final int streamVersion) {
     this.applied = new ArrayList<Source>(2);
     this.currentVersion = streamVersion;
@@ -50,22 +58,17 @@ public abstract class SourcedEntity<Source> {
     }
   }
 
-  protected SourcedEntity() {
-    this.applied = new ArrayList<>(2);
-    this.currentVersion = 0;
-  }
-
   @SuppressWarnings("unchecked")
   protected void apply(final Source... sources) {
     for (final Source source : sources) {
-      applied().add(source);
+      applied.add(source);
       mutateWhen(source);
     }
   }
 
   protected void apply(final Collection<Source> sources) {
     for (final Source source : sources) {
-      applied().add(source);
+      applied.add(source);
       mutateWhen(source);
     }
   }

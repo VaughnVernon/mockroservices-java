@@ -21,17 +21,18 @@ import java.util.List;
 
 public abstract class DomainEvent implements SourceType {
   public final long occurredOn;
+  public final long validOn;
   public final int eventVersion;
-  
+
   public static DomainEvent NULL = new NullDomainEvent();
-  
+
   public static List<DomainEvent> all(final DomainEvent... domainEvents) {
     return all(Arrays.asList(domainEvents));
   }
-  
+
   public static List<DomainEvent> all(final List<DomainEvent> domainEvents) {
     final List<DomainEvent> all = new ArrayList<>(domainEvents.size());
-    
+
     for (final DomainEvent domainEvent : domainEvents) {
       if (!domainEvent.isNull()) {
         all.add(domainEvent);
@@ -39,24 +40,31 @@ public abstract class DomainEvent implements SourceType {
     }
     return all;
   }
-  
+
   public static List<DomainEvent> none() {
     return Collections.emptyList();
   }
-  
+
   public boolean isNull() {
     return false;
   }
-  
+
   protected DomainEvent() {
     this(1);
   }
-  
+
   protected DomainEvent(final int eventVersion) {
     this.occurredOn = System.currentTimeMillis();
+    this.validOn = System.currentTimeMillis();
     this.eventVersion = eventVersion;
   }
-  
+
+  protected DomainEvent(final long validOn, final int eventVersion) {
+    this.occurredOn = System.currentTimeMillis();
+    this.validOn = validOn;
+    this.eventVersion = eventVersion;
+  }
+
   private static class NullDomainEvent extends DomainEvent {
     @Override
     public boolean isNull() {

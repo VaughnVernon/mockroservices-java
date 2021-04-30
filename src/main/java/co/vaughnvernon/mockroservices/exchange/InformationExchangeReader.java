@@ -26,7 +26,7 @@ public abstract class InformationExchangeReader {
   private JsonObject representation;
 
   public InformationExchangeReader(final String jsonRepresentation) {
-    initialize(jsonRepresentation);
+    representation = parse(jsonRepresentation);
   }
 
   public InformationExchangeReader(final JsonObject jsonRepresentation) {
@@ -93,7 +93,7 @@ public abstract class InformationExchangeReader {
 
   public String[] stringArrayValue(final String... keys) {
     final JsonArray array = array(keys);
-    
+
     if (array != null) {
       final int size = array.size();
       final String[] stringArray = new String[size];
@@ -108,7 +108,7 @@ public abstract class InformationExchangeReader {
   //==============================================
   // internal implementation
   //==============================================
-  
+
   protected JsonElement elementFrom(final JsonObject jsonObject, final String key) {
     JsonElement element = jsonObject.get(key);
 
@@ -186,9 +186,5 @@ public abstract class InformationExchangeReader {
     }
 
     return value;
-  }
-
-  private void initialize(final String jsonRepresentation) {
-    this.representation = parse(jsonRepresentation);
   }
 }

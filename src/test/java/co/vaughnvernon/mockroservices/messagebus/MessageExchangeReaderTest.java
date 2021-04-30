@@ -35,5 +35,6 @@ public class MessageExchangeReaderTest {
     assertEquals(domainEvent.name, reader.payloadStringValue("name"));
     assertEquals(domainEvent.eventVersion, (int) reader.payloadIntegerValue("eventVersion"));
     assertEquals((Long)domainEvent.occurredOn, reader.payloadLongValue("occurredOn"));
+    assertEquals((Long)domainEvent.validOn, reader.payloadLongValue("validOn"));
   }
 }

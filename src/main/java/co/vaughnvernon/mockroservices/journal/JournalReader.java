@@ -18,7 +18,7 @@ public class JournalReader {
   private final Journal journal;
   private final String name;
   private int readSequence;
-  
+
   public void acknowledge(final long id) {
     if (id == readSequence) {
         ++readSequence;
@@ -34,8 +34,8 @@ public class JournalReader {
   }
 
   public StoredSource readNext() {
-    if (readSequence <= journal.greatestId()) {
-      return new StoredSource(readSequence, journal.entryValueAt(readSequence));
+    if (readSequence <= journal.greatestId(name)) {
+      return new StoredSource(readSequence, journal.entryValueAt(readSequence, name));
     }
 
     return new StoredSource(StoredSource.NO_ID, new EntryValue("", EntryValue.NO_STREAM_VERSION, "", "", ""));

@@ -21,17 +21,18 @@ import java.util.List;
 
 public abstract class Command implements SourceType {
   public final long occurredOn;
+  public final long validOn;
   public final int commandVersion;
-  
+
   public static Command NULL = new NullCommand();
-  
+
   public static List<Command> all(final Command... commands) {
     return all(Arrays.asList(commands));
   }
-  
+
   public static List<Command> all(final List<Command> commands) {
     final List<Command> all = new ArrayList<>(commands.size());
-    
+
     for (final Command command : commands) {
       if (!command.isNull()) {
         all.add(command);
@@ -39,24 +40,31 @@ public abstract class Command implements SourceType {
     }
     return all;
   }
-  
+
   public static List<Command> none() {
     return Collections.emptyList();
   }
-  
+
   public boolean isNull() {
     return false;
   }
-  
+
   protected Command() {
     this(1);
   }
-  
+
   protected Command(final int commandVersion) {
     this.occurredOn = System.currentTimeMillis();
+    this.validOn = System.currentTimeMillis();
     this.commandVersion = commandVersion;
   }
-  
+
+  protected Command(final long validOn, final int commandVersion) {
+    this.occurredOn = System.currentTimeMillis();
+    this.validOn = validOn;
+    this.commandVersion = commandVersion;
+  }
+
   private static class NullCommand extends Command {
     @Override
     public boolean isNull() {

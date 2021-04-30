@@ -22,24 +22,24 @@ public class JournalPublisher extends Thread {
   private volatile boolean closed;
   private final JournalReader reader;
   private final Topic topic;
-  
+
   public static JournalPublisher using(
       final String journalName,
       final String messageBusName,
       final String topicName) {
-    
+
     return new JournalPublisher(journalName, messageBusName, topicName);
   }
-  
+
   public void close() {
     closed = true;
   }
-  
+
   @Override
   public void run() {
     while (!closed) {
       final StoredSource source = reader.readNext();
-      
+
       if (source.isValid()) {
         final Message message =
             new Message(
@@ -48,9 +48,9 @@ public class JournalPublisher extends Thread {
                 source.entryValue.body);
 
         topic.publish(message);
-        
+
         reader.acknowledge(source.id);
-        
+
       } else {
         try {
           Thread.sleep(100L);
@@ -60,15 +60,15 @@ public class JournalPublisher extends Thread {
       }
     }
   }
-  
+
   protected JournalPublisher(
       final String journalName,
       final String messageBusName,
       final String topicName) {
 
-    this.reader = Journal.open(journalName).reader("topic-" + topicName + "-reader");
+    this.reader = Journal.open(journalName).reader(topicName);
     this.topic = MessageBus.start(messageBusName).openTopic(topicName);
-    
+
     start();
   }
 }
