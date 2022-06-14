@@ -60,11 +60,11 @@ public class RepositoryTest {
         }
 
         public void save(PersonES person) {
-          journal.write(person.id, person.currentVersion, toBatch(person.applied));
+          journal.write(person.id, person.nextVersion(), toBatch(person.applied));
         }
 
         public <T extends PersonES> void save(final Class<T> streamClass, T person) {
-          journal.write(streamClass, person.id, person.currentVersion, toBatch(person.applied));
+          journal.write(streamClass, person.id, person.nextVersion(), toBatch(person.applied));
         }
         //internal
         private PersonRepository()

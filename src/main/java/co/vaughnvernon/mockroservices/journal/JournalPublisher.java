@@ -53,7 +53,7 @@ public class JournalPublisher extends Thread {
 
       } else {
         try {
-          Thread.sleep(100L);
+          Thread.sleep(10L);
         } catch (Exception e) {
           // ignore
         }

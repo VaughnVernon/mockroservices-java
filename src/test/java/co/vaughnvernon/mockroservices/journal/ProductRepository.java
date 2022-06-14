@@ -24,12 +24,13 @@ public class ProductRepository extends Repository {
   }
 
   public void save(Product product) {
-    journal.write(product.id, product.currentVersion, toBatch(product.applied));
+    journal.write(product.id, product.nextVersion(), toBatch(product.applied));
   }
 
   public <T extends Product> void save(final Class<T> streamClass, T product) {
-    journal.write(streamClass, product.id, product.currentVersion, toBatch(product.applied));
+    journal.write(streamClass, product.id, product.nextVersion(), toBatch(product.applied));
   }
+
   //internal
   public ProductRepository(String journalName)
   {

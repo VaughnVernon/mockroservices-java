@@ -29,11 +29,32 @@ import co.vaughnvernon.mockroservices.messagebus.Topic;
 public class JournalPublisherTest {
 
   @Test
+  public void testSingleMessageJournalPublisher() throws Exception {
+    final Journal journal = Journal.open("test-journal-single");
+    final MessageBus messageBus = MessageBus.start("test-bus-single");
+    final Topic topic1 = messageBus.openTopic("test-topic1-single");
+    JournalPublisher journalPublisher1 = JournalPublisher.using(journal.name(), messageBus.name(), topic1.name());
+
+    final TestSubscriber subscriber1 = new TestSubscriber();
+    topic1.subscribe(subscriber1);
+
+    final EntryBatch batch1 = new EntryBatch();
+    batch1.addEntry("test1type-1", "test1instance1");
+    journal.write("test1-1", EntryValue.NO_STREAM_VERSION, batch1);
+
+    subscriber1.waitForExpectedMessages(1);
+    topic1.close();
+    journalPublisher1.close();
+
+    assertEquals(1, subscriber1.handledMessages.size());
+  }
+
+  @Test
   public void testJournalPublisher() throws Exception {
-    final Journal journal = Journal.open("test-ej");
+    final Journal journal = Journal.open("test-journal");
     final MessageBus messageBus = MessageBus.start("test-bus");
-    final Topic topic1 = messageBus.openTopic("test1");
-    final Topic topic2 = messageBus.openTopic("test2");
+    final Topic topic1 = messageBus.openTopic("test-topic1");
+    final Topic topic2 = messageBus.openTopic("test-topic2");
     JournalPublisher journalPublisher1 = JournalPublisher.using(journal.name(), messageBus.name(), topic1.name());
     JournalPublisher journalPublisher2 = JournalPublisher.using(journal.name(), messageBus.name(), topic2.name());
 
@@ -42,30 +63,30 @@ public class JournalPublisherTest {
 
     final EntryBatch batch1 = new EntryBatch();
     for (int idx = 0; idx < 3; ++idx) {
-      batch1.addEntry("test1type", "test1instance" + idx);
+      batch1.addEntry("test1type-" + idx, "test1instance" + idx);
     }
-    journal.write("test1", EntryValue.NO_STREAM_VERSION, batch1);
+    journal.write("test1-1", EntryValue.NO_STREAM_VERSION, batch1);
 
     subscriber1.waitForExpectedMessages(3);
     topic1.close();
     journalPublisher1.close();
 
     assertEquals(3, subscriber1.handledMessages.size());
-
+    
     final TestSubscriber subscriber2 = new TestSubscriber();
     topic2.subscribe(subscriber2);
 
     final EntryBatch batch2 = new EntryBatch();
     for (int idx = 0; idx < 3; ++idx) {
-      batch2.addEntry("test2type", "test2instance" + idx);
+      batch2.addEntry("test2type-" + idx, "test2instance" + idx);
     }
-    journal.write("test2", EntryValue.NO_STREAM_VERSION, batch2);
+    journal.write("test2-1", EntryValue.NO_STREAM_VERSION, batch2);
 
-    subscriber2.waitForExpectedMessages(3);
+    subscriber2.waitForExpectedMessages(6);
     topic2.close();
     journalPublisher2.close();
 
-    assertEquals(3, subscriber2.handledMessages.size());
+    assertEquals(6, subscriber2.handledMessages.size());
   }
 
   @Test

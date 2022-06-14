@@ -34,8 +34,8 @@ public class JournalReader {
   }
 
   public StoredSource readNext() {
-    if (readSequence <= journal.greatestId(name)) {
-      return new StoredSource(readSequence, journal.entryValueAt(readSequence, name));
+    if (readSequence <= journal.greatestId()) {
+      return new StoredSource(readSequence, journal.entryValueAt(readSequence));
     }
 
     return new StoredSource(StoredSource.NO_ID, new EntryValue("", EntryValue.NO_STREAM_VERSION, "", "", ""));

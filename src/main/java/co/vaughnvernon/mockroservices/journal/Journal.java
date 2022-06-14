@@ -36,15 +36,21 @@ public class Journal {
 
     final Journal journal = new Journal(name);
 
-    journals.put(name, journal);
+    synchronized (journals) {
+      journals.put(name, journal);
+    }
 
     return journal;
   }
 
   public void close() {
-    store.clear();
-    readers.clear();
-    journals.remove(name);
+    synchronized (store) {
+      store.clear();
+      readers.clear();
+    }
+    synchronized (journals) {
+      journals.remove(name);
+    }
   }
 
   public String name() {
@@ -72,10 +78,9 @@ public class Journal {
   public void write(final EntryBatch batch) {
     synchronized (store) {
       tryCanWrite("", EntryValue.NO_STREAM_VERSION);
-      int offset = 1;
+      int offsetingStreamVersion = 1;
       for (final EntryBatch.Entry entry : batch.entries) {
-        store.add(new EntryValue("", 0 + offset, entry.type, entry.body, ""));
-        offset++;
+        store.add(new EntryValue("", offsetingStreamVersion++, entry.type, entry.body, ""));
       }
     }
   }
@@ -83,10 +88,9 @@ public class Journal {
   public void write(final String streamName, final int streamVersion, final EntryBatch batch) {
     synchronized (store) {
       tryCanWrite(streamName, streamVersion);
-      int offset = 1;
+      int offsetingStreamVersion = streamVersion == EntryValue.NO_STREAM_VERSION ? 1 : streamVersion;
       for (final EntryBatch.Entry entry : batch.entries) {
-        store.add(new EntryValue(streamName, streamVersion + offset, entry.type, entry.body, entry.snapshot));
-        offset++;
+        store.add(new EntryValue(streamName, offsetingStreamVersion++, entry.type, entry.body, entry.snapshot));
       }
     }
   }
@@ -94,10 +98,9 @@ public class Journal {
   public <T> void write(final Class<T> streamClass, final String streamName, final int streamVersion, final EntryBatch batch) {
     synchronized (store) {
       tryCanWrite(streamName, streamVersion);
-      int offset = 1;
+      int offsetingStreamVersion = streamVersion == EntryValue.NO_STREAM_VERSION ? 1 : streamVersion;
       for (final EntryBatch.Entry entry : batch.entries) {
-        store.add(new EntryValue(StreamNameBuilder.buildStreamNameFor(streamClass, streamName), streamVersion + offset, entry.type, entry.body, entry.snapshot));
-        offset++;
+        store.add(new EntryValue(StreamNameBuilder.buildStreamNameFor(streamClass, streamName), offsetingStreamVersion++, entry.type, entry.body, entry.snapshot));
       }
     }
   }
@@ -108,17 +111,17 @@ public class Journal {
     this.store = new ArrayList<EntryValue>();
   }
 
-  protected EntryValue entryValueAt(final int id, final String streamName) {
+  protected EntryValue entryValueAt(final int id) {
     synchronized (store) {
-      if (id > greatestId(streamName)) {
-        throw new IllegalArgumentException("The id does not exist: " + id);
-      }
-      String maybeCatStreamName = maybeCategoryStreamName(streamName);
-      if (isCategoryStream(streamName)) {
-        return store.stream().filter(e -> e.streamName.startsWith(maybeCatStreamName)).collect(Collectors.toList()).get(id);
-      }
-      return store.stream().filter(e -> e.streamName.equals(maybeCatStreamName)).collect(Collectors.toList()).get(id);
+      // if (id > greatestId()) {
+      // throw new IllegalArgumentException("The id does not exist: " + id);
+      // }
+      return store.get(id);
     }
+  }
+
+  protected int greatestId() {
+    return store.size() - 1;
   }
 
   protected int greatestId(String streamName) {
@@ -137,7 +140,7 @@ public class Journal {
       final List<EntryValue> storeCopy = new ArrayList<EntryValue>(store);
       EntryValue latestSnapshotValue = null;
 
-      int globalIndex = 0;
+      int globalIndex = 1;
       for (final EntryValue value : storeCopy) {
         if (canRead(value, streamName)) {
           if (value.hasSnapshot()) {
@@ -153,7 +156,8 @@ public class Journal {
       final int snapshotVersion = latestSnapshotValue == null ? 0 : latestSnapshotValue.streamVersion;
       final int streamVersion = values.isEmpty() ? snapshotVersion : values.get(values.size() - 1).streamVersion;
 
-      return new EntryStream(streamName, streamVersion, values, latestSnapshotValue == null ? "" : latestSnapshotValue.snapshot);
+      return new EntryStream(streamName, streamVersion, values,
+              latestSnapshotValue == null ? "" : latestSnapshotValue.snapshot);
     }
   }
 
@@ -163,22 +167,21 @@ public class Journal {
     EntryValue lastEntry = lastOrDefault(streamName);
     if (lastEntry != null) {
       currentVersion = expectedStreamVersion;
-      canWrite = lastEntry.streamVersion == expectedStreamVersion;
-    } else if (expectedStreamVersion == EntryValue.NO_STREAM_VERSION) {
-      currentVersion = EntryValue.NO_STREAM_VERSION;
+      canWrite = lastEntry.streamVersion == (expectedStreamVersion - 1);
+    } else if (expectedStreamVersion == EntryValue.NO_STREAM_VERSION || expectedStreamVersion == 1) {
+      currentVersion = 1;
       canWrite = true;
     }
 
-    if(!canWrite) {
-      throw new IndexOutOfBoundsException("Cannot write to stream " + streamName +
-      " with expected version " + expectedStreamVersion +
-      " because the current version is " + currentVersion);
+    if (!canWrite) {
+      throw new IndexOutOfBoundsException("Cannot write to stream " + streamName + " with expected version "
+              + expectedStreamVersion + " because the current version is " + currentVersion);
     }
   }
 
   private boolean canRead(EntryValue entryValue, String streamName) {
     String maybeCatStreamName = maybeCategoryStreamName(streamName);
-    if(isCategoryStream(streamName)) {
+    if (isCategoryStream(streamName)) {
       return entryValue.streamName.startsWith(maybeCatStreamName);
     }
     return entryValue.streamName.equals(maybeCatStreamName);
@@ -186,7 +189,7 @@ public class Journal {
 
   private String maybeCategoryStreamName(String streamName) {
     if (isCategoryStream(streamName)) {
-        return streamName.split("-")[1];
+      return streamName.split("-")[1];
     }
     return streamName;
   }
@@ -196,9 +199,10 @@ public class Journal {
   }
 
   private EntryValue lastOrDefault(String streamName) {
-    List<EntryValue> filtered = store.stream().filter(e -> e.streamName.equals(streamName)).collect(Collectors.toList());
-    if(filtered.size()>0) {
-      return filtered.get(filtered.size()-1);
+    List<EntryValue> filtered = store.stream().filter(e -> e.streamName.equals(streamName))
+            .collect(Collectors.toList());
+    if (!filtered.isEmpty()) {
+      return filtered.get(filtered.size() - 1);
     } else {
       return null;
     }

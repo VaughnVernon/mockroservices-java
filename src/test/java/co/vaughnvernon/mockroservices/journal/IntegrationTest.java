@@ -30,19 +30,19 @@ public class IntegrationTest {
     repository.save(Product.class, product);
 
     Product productAt2018 = repository.productOfId(Product.class, id, y2018);
-    assertEquals(4, productAt2018.currentVersion);
+    assertEquals(5, productAt2018.currentVersion);
     assertEquals("dice-fuz-1", productAt2018.name);
     assertEquals("Fuzzy dice.", productAt2018.description);
     assertEquals(999, productAt2018.price);
 
     Product productAt2019 = repository.productOfId(Product.class, id, y2019);
-    assertEquals(4, productAt2019.currentVersion);
+    assertEquals(5, productAt2019.currentVersion);
     assertEquals("dice-fizzy-1", productAt2019.name);
     assertEquals("Fuzzy dice.", productAt2019.description);
     assertEquals(995, productAt2019.price);
 
     Product productAt2020 = repository.productOfId(Product.class, id, y2020);
-    assertEquals(4, productAt2020.currentVersion);
+    assertEquals(5, productAt2020.currentVersion);
     assertEquals("dice-fuzzy-1", productAt2020.name);
     assertEquals("Fuzzy dice, and all.", productAt2020.description);
     assertEquals(995, productAt2020.price);

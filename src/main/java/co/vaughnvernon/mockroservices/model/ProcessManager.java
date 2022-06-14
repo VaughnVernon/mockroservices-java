@@ -16,8 +16,8 @@ package co.vaughnvernon.mockroservices.model;
 
 import java.util.List;
 
-public abstract class ProcessManager extends SourcedEntity<Command> {
-  protected ProcessManager(final List<Command> stream, final int streamVersion) {
+public abstract class ProcessManager<T extends SourceType> extends SourcedEntity<T> {
+  protected ProcessManager(final List<T> stream, final int streamVersion) {
     super(stream, streamVersion);
   }
 
@@ -25,7 +25,8 @@ public abstract class ProcessManager extends SourcedEntity<Command> {
     super();
   }
 
-  protected void process(final Command...commands) {
+  @SuppressWarnings("unchecked")
+  protected void process(final T...commands) {
     apply(commands);
   }
 }

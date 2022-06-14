@@ -22,17 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.vaughnvernon.mockroservices.journal.EntryValue;
-
-public abstract class SourcedEntity<Source> {
+public abstract class SourcedEntity<T extends SourceType> {
   private static final String MUTATOR_METHOD_NAME = "when";
   private static final Map<String, Method> mutatorMethods = new HashMap<String, Method>();
 
   //readonly
-  public final List<Source> applied;
+  public final List<T> applied;
   public final int currentVersion;
 
-  public List<Source> applied() {
+  public List<T> applied() {
     return applied;
   }
 
@@ -46,34 +44,34 @@ public abstract class SourcedEntity<Source> {
 
   protected SourcedEntity() {
     this.applied = new ArrayList<>(2);
-    this.currentVersion = EntryValue.NO_STREAM_VERSION;
+    this.currentVersion = 0;
   }
 
-  protected SourcedEntity(final List<Source> stream, final int streamVersion) {
-    this.applied = new ArrayList<Source>(2);
+  protected SourcedEntity(final List<T> stream, final int streamVersion) {
+    this.applied = new ArrayList<T>(stream.size());
     this.currentVersion = streamVersion;
 
-    for (final Source source : stream) {
+    for (final T source : stream) {
       mutateWhen(source);
     }
   }
 
   @SuppressWarnings("unchecked")
-  protected void apply(final Source... sources) {
-    for (final Source source : sources) {
+  protected void apply(final T... sources) {
+    for (final T source : sources) {
       applied.add(source);
       mutateWhen(source);
     }
   }
 
-  protected void apply(final Collection<Source> sources) {
-    for (final Source source : sources) {
+  protected void apply(final Collection<T> sources) {
+    for (final T source : sources) {
       applied.add(source);
       mutateWhen(source);
     }
   }
 
-  protected void mutateWhen(final Source source) {
+  protected void mutateWhen(final T source) {
     final Class<?> rootType = this.getClass();
     final Class<?> sourceType = source.getClass();
     final String key = rootType.getName() + ":" + sourceType.getName();
