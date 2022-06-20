@@ -18,14 +18,18 @@ public class JournalReader {
   private final Journal journal;
   private final String name;
   private int readSequence;
+  private boolean requiresAck;
 
   public void acknowledge(final long id) {
-    if (id == readSequence) {
+    synchronized (this) {
+      if (id == readSequence) {
         ++readSequence;
-    } else if (id > readSequence) {
+        requiresAck = false;
+      } else if (id > readSequence) {
         throw new IllegalArgumentException("The id is out of range.");
-    } else if (id < readSequence) {
+      } else if (id < readSequence) {
         // allow for this case; don't throw IllegalArgumentException("The id has already been acknowledged.");
+      }
     }
   }
 
@@ -34,15 +38,20 @@ public class JournalReader {
   }
 
   public StoredSource readNext() {
-    if (readSequence <= journal.greatestId()) {
-      return new StoredSource(readSequence, journal.entryValueAt(readSequence));
+    synchronized (this) {
+      if (readSequence <= journal.greatestId() && ! requiresAck) {
+        requiresAck = true;
+        return new StoredSource(readSequence, journal.entryValueAt(readSequence));
+      }
     }
 
     return new StoredSource(StoredSource.NO_ID, new EntryValue("", EntryValue.NO_STREAM_VERSION, "", "", ""));
   }
 
   public void reset() {
-    readSequence = 0;
+    synchronized (this) {
+      readSequence = 0;
+    }
   }
 
   protected JournalReader(final String name, final Journal journal) {
