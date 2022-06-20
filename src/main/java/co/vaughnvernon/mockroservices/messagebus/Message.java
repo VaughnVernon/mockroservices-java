@@ -14,6 +14,8 @@
 
 package co.vaughnvernon.mockroservices.messagebus;
 
+import co.vaughnvernon.mockroservices.serialization.Serialization;
+
 public class Message {
   public final String id;
   public final String payload;
@@ -23,5 +25,25 @@ public class Message {
     this.id = id;
     this.type = type;
     this.payload = payload;
+  }
+
+  public String simpleTypeName() {
+    return simpleTypeName(".");
+  }
+
+  public String simpleTypeName(String separator) {
+    int index = type.lastIndexOf(separator);
+
+    if (index == -1) {
+      return type;
+    }
+
+    return type.substring(index + 1);
+  }
+
+  public <T> T typed(Class<T> type) {
+    T typedMessage = Serialization.deserialize(payload, type);
+
+    return typedMessage;
   }
 }
