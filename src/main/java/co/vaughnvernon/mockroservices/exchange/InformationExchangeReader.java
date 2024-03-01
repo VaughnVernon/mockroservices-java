@@ -1,4 +1,4 @@
-//   Copyright © 2017-2022 Vaughn Vernon. All rights reserved.
+//   Copyright ï¿½ 2017-2022 Vaughn Vernon. All rights reserved.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -163,9 +163,7 @@ public abstract class InformationExchangeReader {
 
   protected JsonObject parse(final String jsonRepresentation) {
     try {
-      JsonParser parser = new JsonParser();
-      final JsonObject jsonObject = parser.parse(jsonRepresentation).getAsJsonObject();
-      return jsonObject;
+      return JsonParser.parseString(jsonRepresentation).getAsJsonObject();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
