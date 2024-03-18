@@ -21,11 +21,15 @@ public class EntryStream {
   public final List<EntryValue> stream;
   public final String streamName;
   public final int streamVersion;
-  
+
   public boolean hasSnapshot() {
     return !snapshot.isEmpty();
   }
-  
+
+  public boolean hasStream() {
+    return !this.stream.isEmpty();
+  }
+
   protected EntryStream(final String streamName, int streamVersion, List<EntryValue> stream, final String snapshot) {
     this.streamName = streamName;
     this.streamVersion = streamVersion;

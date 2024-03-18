@@ -17,12 +17,14 @@ package co.vaughnvernon.mockroservices.journal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+
+import org.junit.Test;
 
 import co.vaughnvernon.mockroservices.Person;
 import co.vaughnvernon.mockroservices.serialization.Serialization;
-import org.junit.Test;
-
-import java.util.Date;
 
 public class JournalTest {
 
@@ -90,6 +92,7 @@ public class JournalTest {
 
     final EntryStream eventStream123 = streamReader.streamFor("name123");
     assertEquals(3, eventStream123.streamVersion);
+    assertTrue(eventStream123.hasStream());
     assertEquals(3, eventStream123.stream.size());
     assertEquals(new EntryValue("name123", 1, "type1", "type1_instance1", ""), eventStream123.stream.get(0));
     assertEquals(new EntryValue("name123", 2, "type1-1", "type1-1_instance1", ""), eventStream123.stream.get(1));
@@ -97,6 +100,7 @@ public class JournalTest {
 
     final EntryStream eventStream456 = streamReader.streamFor("name456");
     assertEquals(2, eventStream456.streamVersion);
+    assertTrue(eventStream456.hasStream());
     assertEquals(2, eventStream456.stream.size());
     assertEquals(new EntryValue("name456", 1, "type2", "type2_instance1", ""), eventStream456.stream.get(0));
     assertEquals(new EntryValue("name456", 2, "type2-1", "type2-1_instance1", ""), eventStream456.stream.get(1));
