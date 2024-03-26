@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import co.vaughnvernon.SomeOtherEventTypeName;
 import co.vaughnvernon.mockroservices.messagebus.Message;
 import co.vaughnvernon.mockroservices.messagebus.MessageBus;
 import co.vaughnvernon.mockroservices.messagebus.Subscriber;
@@ -118,6 +119,32 @@ public class JournalPublisherTest {
     assertEquals(6, subscriber.handledMessages.size());
   }
 
+  @Test
+  public void thatThatOriginalSourceMessageTypeTranslates() {
+    final Journal journal = Journal.open("test-ej-cat");
+    final MessageBus messageBus = MessageBus.start("test-bus-cat");
+    final Topic topic = messageBus.openTopic("cat-test");
+    JournalPublisher journalPublisher = JournalPublisher.using(journal.name(), messageBus.name(), topic.name());
+
+    final String someEventName = SomeEventTypeName.class.getSimpleName();
+    final String originalSourceMessageType1 = SomeEventTypeName.class.getName();
+    final String targetMessageType = "co.vaughnvernon." + someEventName;
+
+    final String someOtherEventName = SomeOtherEventTypeName.class.getSimpleName();
+    final String originalSourceMessageType2 = SomeOtherEventTypeName.class.getName();
+    final String targetMessagePackage = "com.company.contextname";
+    final String resultingPackageNameWithPrimaryType = targetMessagePackage + "." + someOtherEventName;
+    
+    journalPublisher.registerTranslationMapping(originalSourceMessageType1, targetMessageType);
+    journalPublisher.registerTranslationMapping(originalSourceMessageType2, targetMessagePackage);
+
+    String translatedFullyQualifiedTargetMessageType = journalPublisher.translateFrom(originalSourceMessageType1);
+    assertEquals(targetMessageType, translatedFullyQualifiedTargetMessageType);
+
+    String translatedPackageNameOnlyTargetMessageType = journalPublisher.translateFrom(originalSourceMessageType2);
+    assertEquals(resultingPackageNameWithPrimaryType, translatedPackageNameOnlyTargetMessageType);
+  }
+  
   public static class TestSubscriber implements Subscriber {
     public final List<Message> handledMessages = new ArrayList<>();
 
